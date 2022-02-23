@@ -1,0 +1,6 @@
+<h1>Welcome to Campus App</h1>
+<span><a href="/logout">Logout</a></span>
+
+{% block content%}
+Hello, {{user.username|default:'Guest'}}
+{% endblock %}
