@@ -14,14 +14,14 @@ from .forms import CreateUserForm
 def register(request):
 	#If you are logged in already it will send you to the home
 	if request.user.is_authenticated:
-		return redirect('users:home')
+		return redirect('game:home')
 	else:
 		if request.method == 'POST':
 			form = CreateUserForm(request.POST) #Creates the form using the forms.py
 			if form.is_valid():
 				user = form.save() #Saves the form
 				messages.info(request, "Registration Successful")
-				return redirect('users:login') #Redirects you to login after registration is successful
+				return redirect('game:login') #Redirects you to login after registration is successful
 
 			messages.error(request, "Unsuccessful Registration. Invalid information") #This is when it doesn't have the requirements it asks
 		form = CreateUserForm() #For making the form
@@ -31,7 +31,7 @@ def register(request):
 def loginPage(request):
 	#If you are logged in already it will send you to the home
 	if request.user.is_authenticated:
-		return('users:home')
+		return('game:home')
 	else:
 		if request.method == 'POST':
 			username = request.POST.get('username') #Asks for username
@@ -41,7 +41,7 @@ def loginPage(request):
 			#If the user is incorrect it won't run this
 			if user is not None:
 				login(request, user)
-				return redirect('users:home') #Redirects to home
+				return redirect('game:home') #Redirects to home
 			else:
 				messages.info(request, 'Username or Password is incorrect')
 
@@ -50,8 +50,8 @@ def loginPage(request):
 
 def userLogout(request):
 	logout(request) #Simple logout request sends you back to login
-	return redirect('users:login')
+	return redirect('game:login')
 
-@login_required(login_url='users:login') #This is used to tell the webapp that you can't access the homepage without logging in
+@login_required(login_url='game:login') #This is used to tell the webapp that you can't access the homepage without logging in
 def home(request):
 	return render(request, "users/home.html")
