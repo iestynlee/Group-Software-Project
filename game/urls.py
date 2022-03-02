@@ -2,6 +2,7 @@ from django.urls import path, include
 from . import views
 
 from django.contrib.auth import views as auth_views
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 app_name='game'
 urlpatterns = [
@@ -10,9 +11,10 @@ urlpatterns = [
 
 	#Lobby
 	path('lobbies/', views.lobbies, name="lobbies"),
+	path('<int:lobby_code>/', views.inLobby, name='lobby'),
 
 	#Game
-
+	path('game/', views.inGame, name="game"),
 
 	#These are the urls for the registering and logging in for normal user
 	path('register/', views.register, name="register"),
@@ -28,3 +30,6 @@ urlpatterns = [
 	path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name="users/password_reset_form.html"), name="password_reset_confirm"),
 	path('password_reset_complete/', auth_views.PasswordResetCompleteView.as_view(template_name="users/password_reset_done.html"), name="password_reset_complete"),
 ]
+
+#For the Images
+urlpatterns += staticfiles_urlpatterns()
