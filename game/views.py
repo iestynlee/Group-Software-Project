@@ -96,3 +96,22 @@ def home(request):
 @login_required(login_url='game:login')
 def lobbies(request):
 	return render(request, "game/lobbies.html")
+
+def inLobby(request, lobby_code):
+	lobby = get_object_or_404(Lobby, pk=lobby_code)
+	return render(request, 'game/lobby.html', {'lobby': lobby})
+
+@login_required(login_url='game:login')
+def add_user_to_lobby(request, lobby_code):
+	lobby = get_object_or_404(Lobby, lobby_code)
+	if lobby.users.filter(pk=request.user.pk).exists():
+		return redirect('game:game')
+	elif not lobby.is_occupied(request.user):
+		lobby.users.add(request.user)
+		return redirect('game:game')
+	else:
+		return render(request, "users/error_page.html")
+
+@login_required(login_url='game:login')
+def inGame(request):
+	return render(request, "game/game.html")
