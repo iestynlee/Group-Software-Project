@@ -128,8 +128,8 @@ class Game:
         The player added to the game
         """
         self.players.append(user)
-
-        return "Player " + user + " has joined the lobby"
+        print("Player " + user + " has joined the lobby")
+        return user
         
 
     def removePlayer(self, user) -> Player:
@@ -165,12 +165,11 @@ class Game:
         This function takes all the tasks in the game and distibutes them evenly among 
         the non imposter players.
         """
-        noOfIndividualTasks = self.tasks % len(self.players)
-        for i in range(self.players):
+        noOfIndividualTasks = len(self.tasks) % len(self.players)
+        for i in range(len(self.players)):
             for x in range(noOfIndividualTasks):
                 self.players.individualTask.append(random.choice(self.tasks))
 
 
     def addTasks(self, task):
         self.tasks.append(task)
-
