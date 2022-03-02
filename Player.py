@@ -1,7 +1,7 @@
 class Player:
     
     
-    def __init__(self, isImposter, user, gpsLocation, isAlive):
+    def __init__(self, isImposter, user, gpsLocation, isAlive, individualTasks):
         """
         Constructor function
         -----
@@ -15,6 +15,40 @@ class Player:
         self.user = user
         self.gpsLocation = gpsLocation
         self.isAlive = isAlive
+        self.individualTasks = []
+        
+        @property
+        def isImposter(self):
+            return self.isImposter
+        @isImposter.setter
+        def isImposter(self, newImposter):
+            self.isImposter = newImposter
+
+        @property
+        def user(self):
+            return self.user
+        @user.setter
+        def user(self, newUser):
+            self.user = newUser
+        
+        @property
+        def gpsLocation(self):
+            return self.gpsLocation
+        @gpsLocation.setter
+        def gpsLocation(self, newGPSLocation):
+            self.gpsLocation = newGPSLocation
+        
+        @property
+        def isAlive(self):
+            return self.isAlive
+        @isAlive.setter
+        def isAlive(self, newState):
+            self.isAlive = newState
+
+        @property
+        def individualTasks(self):
+            return self.individualTasks
+
 
 
     def doTask(self, task): 
@@ -28,6 +62,9 @@ class Player:
         Returns:
         The task that had its state changed
         """
+
+        #TBD
+        
         pass
 
     def killPlayer(self, player):
@@ -40,9 +77,7 @@ class Player:
         -----
         Returns:
         The player that has been killed
-
         """
-        pass
-
-
-
+        if self.isAlive == True and self.isImposter == True:
+            player.isAlive = False
+        
