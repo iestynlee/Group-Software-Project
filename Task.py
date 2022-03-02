@@ -12,3 +12,24 @@ class Task:
         self.location = location
         self.name = name
         self.isDone = isDone
+
+        @property
+        def location(self):
+            return self.location
+        @location.setter
+        def location(self, newLocation):
+            self.location = newLocation
+
+        @property
+        def name(self):
+            return self.name
+        @name.setter
+        def name(self, newName):
+            self.name = newName
+        
+        @property
+        def isDone(self):
+            return self.isDone
+        @isDone.setter
+        def isDone(self, newState):
+            self.isDone = newState
