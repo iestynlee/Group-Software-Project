@@ -62,9 +62,9 @@ class Player:
         The task that had its state changed
         """
 
-        #TBD
-        
-        pass
+        taskStateToBeChanged = self.individualTasks.index(task)
+            if self.gpsLocation == taskStateToBeChanged.location:
+                taskStateToBeChanged.isDone = True
 
     def killPlayer(self, player):
         """
@@ -77,6 +77,7 @@ class Player:
         Returns:
         The player that has been killed
         """
-        if self.isAlive == True and self.isImposter == True:
-            player.isAlive = False
+        if self.gpsLocation == player.gpsLocation:
+            if self.isAlive == True and self.isImposter == True:
+                player.isAlive = False
         
