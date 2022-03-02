@@ -1,11 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% load static %}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style type="text/css">
+		*,
+	*:before,
+	*:after{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+.popup{
+    background-color: #ffffff;
+    width: 420px;
+    padding: 30px 40px;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    left: 50%;
+    top: 50%;
+    border-radius: 8px;
+    display: none;
+    font-family: "Poppins",sans-serif;
+    text-align: center;
+}
+.popup button{
+    display: block;
+    margin:  0 0 20px auto;
+    background-color: transparent;
+    font-size: 30px;
+    color: #ffffff;
+    background: #03549a;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.popup h2{
+   margin-top: -20px;
+}
+.popup p{
+    font-size: 14px;
+    text-align: justify;
+    margin: 20px 0;
+    line-height: 25px;
+}
+	</style>
+	<title></title>
+</head>
+<body>
+	<h1>Game</h1>
+	<div class="popup">
+		<button id="close">&times;</button>
+		<h2>Your Role</h2>
+	<p>The Rules: Killers are suppose to kill the Innocents while the Innocents try to do all the tasks. If Killers kill everyone, then they win. However, if the Innocents finish the tasks first, they will win. Tasks can be done even if you are dead. Good luck</p>
+	</div>
+	{% if request.user|has_group:"Killer" %}
+	<h3>Killer</h3>
+	{% endif %}
+	{% if request.user|has_group:"Innocent" %}
+	<h3>Innocent</h3>
+	{% endif %}
+	{% if request.user|has_group:"Gamemaster" %}
+	<h3>GameMaster</h3>
+	{% endif %}
+    <img src="{% static "images/map.png" %}" alt="Map" width=50% height=50%/>
+    {% if request.user|has_group:"Killer" %}
+    <!-- Player List here-->
+    <button>Kill</button>
+    {% endif %}
+    {% if request.user|has_group:"Innocent" %}
+    <!-- Task List here-->
+    <button>Do Task</button>
+    {% endif %}
+    {% if request.user|has_group:"Innocent" %}
+    <button>End Game</button>
+    {% endif %}
+     <script type="text/javascript">
+window.addEventListener("load", function(){
+    setTimeout(
+        function open(event){
+            document.querySelector(".popup").style.display = "block";
+        },
+        2000 
+    )
+});
 
 
-<!--
-{% if tasks %}
-<ul>
-{% for task in tasks %}
-	<li>
-	{{ task.name}}: {{task.distance}}
-	</li>
-</ul>
--->
+document.querySelector("#close").addEventListener("click", function(){
+    document.querySelector(".popup").style.display = "none";
+});
+    </script>
+</body>
+</html>
+

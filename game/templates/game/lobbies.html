@@ -6,21 +6,13 @@
 {% block content %}
 <h1>Lobbies</h1>
 <hr>
+User: {{user.username|default:'Guest'}}
 <!--
-{% if lobbies %}
-<ul>
-{% for lobby in lobbies %}
-<li>
-	{{ lobby.name }}
-</li>
-{% endfor %}
-</ul>
-{% endif %}
-
+Player List here
+-->
 Button to create lobby
 {% if request.user|has_group:"Gamemaster" %}
 <button type="submit" value="Createlobby">Create Lobby</button>
 {% endif %}
--->
 
 {% endblock %}
