@@ -15,21 +15,21 @@ class Task:
 
         @property
         def location(self):
-            return self.location
+            return self.__location
         @location.setter
         def location(self, newLocation):
-            self.location = newLocation
+            self.__location = newLocation
 
         @property
         def name(self):
-            return self.name
+            return self.__name
         @name.setter
         def name(self, newName):
-            self.name = newName
+            self.__name = newName
         
         @property
         def isDone(self):
-            return self.isDone
+            return self.__isDone
         @isDone.setter
         def isDone(self, newState):
-            self.isDone = newState
+            self.__isDone = newState
