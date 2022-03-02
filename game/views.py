@@ -1,5 +1,5 @@
 #What you need to render the html and files
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.forms import inlineformset_factory
 
@@ -10,15 +10,19 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User, Group
 
+from django.template import loader
+from django.http import Http404
+
 #GeoDjango
 #from django.views import generic
 #from django.contrib.gis.geos import fromstr
 #from django.contrib.gis.db.models.functions import Distance
 #from .models import Tasks
 
-#Using the other functions on the other files
-from .forms import CreateUserForm
+#Using the other functions from the other files
+from .forms import *
 from .utils import *
+from .models import *
 
 #Registration & Login
 def register(request):
@@ -92,26 +96,45 @@ def userLogout(request):
 def home(request):
 	return render(request, "users/home.html")
 
-#The Game
+#Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	return render(request, "game/lobbies.html")
+	listlobbies = Lobby.objects.all()
+	context = {'listlobbies': listlobbies}
+	return render(request, "game/lobbies.html", context)
 
-def inLobby(request, lobby_code):
-	lobby = get_object_or_404(Lobby, pk=lobby_code)
+@login_required(login_url='game:login')
+def inLobby(request, lobby_name):
+	lobby = get_object_or_404(Lobby, pk=lobby_name)
 	return render(request, 'game/lobby.html', {'lobby': lobby})
 
 @login_required(login_url='game:login')
-def add_user_to_lobby(request, lobby_code):
-	lobby = get_object_or_404(Lobby, lobby_code)
+def add_user_to_lobby(request, lobby_name):
+	lobby = Property.objects.get(Lobby, lobby_name)
 	if lobby.users.filter(pk=request.user.pk).exists():
-		return redirect('game:game')
+		return redirect('game:lobby')
 	elif not lobby.is_occupied(request.user):
 		lobby.users.add(request.user)
-		return redirect('game:game')
+		return redirect('game:lobby')
 	else:
 		return render(request, "users/error_page.html")
 
+@login_required(login_url='game:login')
+def cancelLobby(request):
+	cancel = lobby.objects.filter(id=id)
+	cancel.delete()
+
+@login_required(login_url='game:login')
+def lobbyForm(request):
+    form = LobbyForm()
+    if request.method == 'POST':
+    	form = LobbyForm(request.POST)
+    	if form.is_valid():
+    		form.save()
+    		redirect('game:lobbies')
+    return render(request,"game/createLobby.html",{'form':form}) 
+
+#The Game
 @login_required(login_url='game:login')
 def inGame(request):
 	return render(request, "game/game.html")

@@ -11,7 +11,9 @@ urlpatterns = [
 
 	#Lobby
 	path('lobbies/', views.lobbies, name="lobbies"),
-	path('<int:lobby_code>/', views.inLobby, name='lobby'),
+	path('createlobby/', views.lobbyForm, name="createlobby"),
+	path('lobby/<int:lobby_name>/', views.inLobby, name='lobby'),
+	path('add_user_to_lobby/', views.add_user_to_lobby, name='add_user_to_lobby'),
 
 	#Game
 	path('game/', views.inGame, name="game"),

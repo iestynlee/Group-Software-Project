@@ -4,8 +4,10 @@ import uuid
 
 class Lobby(models.Model):
 	users = models.ManyToManyField(User)
-	lobby_code = models.UUIDField(default=uuid.uuid4, editable=False)
-	#lobby_code = models.CharField(max_length=18, unique=True)
+	lobby_name = models.CharField(max_length=200, default='Test', unique=True)
+
+	def __str__(self):
+		return self.lobby_name
 
 	def players(self):
 		return self.users.all()
