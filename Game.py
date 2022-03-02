@@ -168,7 +168,7 @@ class Game:
         noOfIndividualTasks = len(self.tasks) % len(self.players)
         for i in range(len(self.players)):
             for x in range(noOfIndividualTasks):
-                self.players.individualTask.append(random.choice(self.tasks))
+                self.players[x].individualTask.append(random.choice(self.tasks))
 
 
     def addTasks(self, task):
