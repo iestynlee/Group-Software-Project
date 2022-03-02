@@ -56,7 +56,7 @@ def loginPage(request):
 				else:
 					messages.info(request, 'Username or Password is incorrect')
 			else:
-				messages.info(request, 'This account is a Gamemaster, Go to the Gamemaster Login')
+				messages.info(request, 'This account is not a Gamemaster, Go to the Gamemaster Login')
 
 	context = {}
 	return render(request, 'users/login.html', context)
