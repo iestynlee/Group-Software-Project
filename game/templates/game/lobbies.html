@@ -7,12 +7,14 @@
 <h1>Lobbies</h1>
 <hr>
 User: {{user.username|default:'Guest'}}
-<!--
-Player List here
--->
-Button to create lobby
+<br>
+<!--List of Lobbies-->
+{% for lobby in listlobbies %}
+	<li><a href="{% url 'game:lobby' lobby.id %}"><button onclick="window.location.href='/add_user_to_lobby/';">{{ lobby.lobby_name }}</button></a></li>
+{% endfor %}
+<hr>
+<!--Button to create lobby-->
 {% if request.user|has_group:"Gamemaster" %}
-<button type="submit" value="Createlobby">Create Lobby</button>
+<a href="/createlobby">Create Lobby</a>
 {% endif %}
-
 {% endblock %}

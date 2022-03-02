@@ -1,0 +1,6 @@
+<form method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+<button type="submit" value="Createlobby">Create Lobby</button>
+<a href="/lobbies">Go back to lobbies</a>
+</form>
