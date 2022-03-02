@@ -1,0 +1,26 @@
+{% extends "users/base.html" %}
+
+{% load game_extras %}
+
+{% block nav-lobbies %}<strong class="nav-active">Lobbies</strong>{% endblock %}
+{% block content %}
+<h1>Lobbies</h1>
+<hr>
+<!--
+{% if lobbies %}
+<ul>
+{% for lobby in lobbies %}
+<li>
+	{{ lobby.name }}
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+Button to create lobby
+{% if request.user|has_group:"Gamemaster" %}
+<button type="submit" value="Createlobby">Create Lobby</button>
+{% endif %}
+-->
+
+{% endblock %}

@@ -5,13 +5,22 @@ from django.contrib.auth import views as auth_views
 
 app_name='game'
 urlpatterns = [
-	#Lobby
+	#Home
 	path('', views.home, name="home"),
 
-	#These are the urls for the registering and logging in
+	#Lobby
+	path('lobbies/', views.lobbies, name="lobbies"),
+
+	#Game
+
+
+	#These are the urls for the registering and logging in for normal user
 	path('register/', views.register, name="register"),
 	path('login/', views.loginPage, name="login"),
 	path('logout/', views.userLogout, name="logout"),
+
+	#GameMaster Login
+	path('login_gamemaster/', views.loginGamemaster, name="login_gamemaster"),
 
 	#Password Reset
 	path('password_reset/', auth_views.PasswordResetView.as_view(template_name="users/password_reset.html"), name="password_reset"),

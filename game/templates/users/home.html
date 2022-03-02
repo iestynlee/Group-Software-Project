@@ -1,6 +1,15 @@
-<h1>Welcome to Campus App</h1>
-<span><a href="/logout">Logout</a></span>
+{% extends "users/base.html" %}
 
-{% block content%}
+{% load game_extras %}
+
+{% block nav-home %}<strong class="nav-active">Home</strong>{% endblock %}
+{% block content %}
+<h1>Welcome to Campus App</h1>
+<hr>
 Hello, {{user.username|default:'Guest'}}
+
+{% if request.user|has_group:"Gamemaster" %}
+<p>I am Gamemaster Group, This shows what role you have on the system</p>
+{% endif %}
+
 {% endblock %}
