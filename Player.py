@@ -1,5 +1,6 @@
 class Player:
     
+    
     def __init__(self, isImposter, user, gpsLocation, isAlive, individualTasks):
         """
         Constructor function
@@ -18,35 +19,38 @@ class Player:
         
         @property
         def isImposter(self):
-            return self.isImposter
+            return self.__isImposter
         @isImposter.setter
         def isImposter(self, newImposter):
-            self.isImposter = newImposter
+            self.__isImposter = newImposter
 
         @property
         def user(self):
             return self.user
         @user.setter
         def user(self, newUser):
-            self.user = newUser
+            self.__user = newUser
         
         @property
         def gpsLocation(self):
-            return self.gpsLocation
+            return self.__gpsLocation
         @gpsLocation.setter
         def gpsLocation(self, newGPSLocation):
-            self.gpsLocation = newGPSLocation
+            self.__gpsLocation = newGPSLocation
         
         @property
         def isAlive(self):
-            return self.isAlive
+            return self.__isAlive
         @isAlive.setter
         def isAlive(self, newState):
-            self.isAlive = newState
+            self.__isAlive = newState
 
         @property
         def individualTasks(self):
-            return self.individualTasks
+            return self.__individualTasks
+        @individualTasks.setter
+        def individualTasks(self, newIndividualTasks):
+            self.__individualTasks = newIndividualTasks
 
 
 
@@ -60,11 +64,12 @@ class Player:
         -----
         Returns:
         The task that had its state changed
-        """
 
+        """
         taskStateToBeChanged = self.individualTasks.index(task)
-            if self.gpsLocation == taskStateToBeChanged.location:
-                taskStateToBeChanged.isDone = True
+        if self.gpsLocation == taskStateToBeChanged.location:
+            taskStateToBeChanged.isDone = True
+    
 
     def killPlayer(self, player):
         """
@@ -80,4 +85,3 @@ class Player:
         if self.gpsLocation == player.gpsLocation:
             if self.isAlive == True and self.isImposter == True:
                 player.isAlive = False
-        
