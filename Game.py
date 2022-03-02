@@ -34,30 +34,38 @@ class Game:
         
     @property
     def noOfPlayers(self):
-        return self.noOfPlayers
+        return self.__noOfPlayers
     @noOfPlayers.setter
     def noOfPlayers(self, newNoOfPlayers):
-        self.noOfPlayers = newNoOfPlayers
+        self.__noOfPlayers = newNoOfPlayers
     
     @property
     def state(self):
-        return self.state
+        return self.__state
     @state.setter
     def state(self, newState):
-        self.state = newState
+        self.__state = newState
 
     @property
     def players(self):
-        return self.players
+        return self.__players
+    @players.setter
+    def players(self, newPlayers):
+        self.__players = newPlayers
+
     @property
     def tasks(self):
-        return self.tasks
+        return self.__tasks
+    @tasks.setter
+    def tasks(self, newTasks):
+        self.__tasks = newTasks
+        
     @property
     def gameMaster(self):
-        return self.gameMaster
+        return self.__gameMaster
     @gameMaster.setter
     def gameMaster(self, newGameMaster):
-        self.gameMaster = newGameMaster
+        self.__gameMaster = newGameMaster
         
 
     def startGame(self) -> None:
@@ -165,3 +173,4 @@ class Game:
 
     def addTasks(self, task):
         self.tasks.append(task)
+
