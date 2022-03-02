@@ -1,6 +1,6 @@
 class Task:
 
-    def __init__(self, name, location, isDone) -> None:
+    def __init__(self, name, number, latitude, longitude, isDone) -> None:
         """
         Constructor function
         -----
@@ -9,8 +9,10 @@ class Task:
         location - the GPS location of the task
         isDone -  a boolean determining if the task is pending or done.
         """
-        self.location = location
+        self.latitude = latitude
+        self.longitude = longitude
         self.name = name
+        self.number = number
         self.isDone = isDone
 
         @property
@@ -26,7 +28,7 @@ class Task:
         @name.setter
         def name(self, newName):
             self.__name = newName
-        
+
         @property
         def isDone(self):
             return self.__isDone

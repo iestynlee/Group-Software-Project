@@ -2,9 +2,11 @@ from enum import Enum
 from operator import le
 from queue import Empty
 from time import sleep
-from typing import List 
+from typing import List
 from Player import *
+from Task import *
 import random
+import json
 
 class State(Enum):
     PENDING = 1
@@ -22,7 +24,7 @@ class Game:
         noOfPlayers - the number of players currently in the game
         state - the state of the game
         players - A list of the players included in the game
-        tasks - 
+        tasks -
         gameMaster - the Game Master of the Game
         """
 
@@ -30,15 +32,21 @@ class Game:
         self.state = state
         self.players = []
         self.tasks = []
+        jsonFile = open("taskList.txt")
+        tasksList = json.load(jsonFile)
+        for x in tasksList["tasks"]:
+            anInstance = TaskTask(x["name"], x["number"], x["latitude"], x["longitude"], False)
+            self.tasks.append(anInstance)
+        jsonFile.close()
         self.gameMaster = gameMaster
-        
+
     @property
     def noOfPlayers(self):
         return self.__noOfPlayers
     @noOfPlayers.setter
     def noOfPlayers(self, newNoOfPlayers):
         self.__noOfPlayers = newNoOfPlayers
-    
+
     @property
     def state(self):
         return self.__state
@@ -59,26 +67,26 @@ class Game:
     @tasks.setter
     def tasks(self, newTasks):
         self.__tasks = newTasks
-        
+
     @property
     def gameMaster(self):
         return self.__gameMaster
     @gameMaster.setter
     def gameMaster(self, newGameMaster):
         self.__gameMaster = newGameMaster
-        
+
 
     def startGame(self) -> None:
         """
         This function will be called when the Game Master clicks start game from the game lobby
         This functions sets up and starts the game, and then continuously checks for win conditions.
         (This could be done with threading).
-        The win conditions are: 
-        All tasks asigned to players are done 
-        OR 
+        The win conditions are:
+        All tasks asigned to players are done
+        OR
         The number of imposters is equal or more to the number of crewmates
         """
-        
+
         print("Game is starting in 3")
         sleep(1)
         print("Game is starting in 2")
@@ -92,8 +100,8 @@ class Game:
             if self.players.isAlive <= self.players.isAlive and self.players.isImposter:
                 self.state == "FINISHED"
 
-    
-        
+
+
 
     def cancelGame(self) -> None:
         """
@@ -107,14 +115,14 @@ class Game:
     def finishGame(self) -> None:
         """
         This function is called when a win condition of the game has been met.
-        This function ends the game, changing the state to finished. 
+        This function ends the game, changing the state to finished.
         A message should be displayed depending on who won.
         """
         if self.players.isAlive <= self.players.isAlive and self.players.isImposter:
             print("Imposters Win")
         else:
             print("Crewmates win")
-        
+
 
     def addPlayer(self, user) -> Player:
         """
@@ -130,7 +138,7 @@ class Game:
         self.players.append(user)
         print("Player " + user + " has joined the lobby")
         return user
-        
+
 
     def removePlayer(self, user) -> Player:
         """
@@ -145,7 +153,7 @@ class Game:
         """
         self.players.remove(user)
         print(user + " has been removed from the game")
-        return user 
+        return user
 
     def chooseImposter(self) -> List:
         """
@@ -154,15 +162,15 @@ class Game:
         Returns:
         The player(s) chosen to be imposters in a list
         """
-    
+
         numberOfImposters = input("Choose the desired number of imposters")
         listOfImposters = random.sample(self.players, numberOfImposters)
         return listOfImposters
-        
+
 
     def distributeTasks(self) -> None:
         """
-        This function takes all the tasks in the game and distibutes them evenly among 
+        This function takes all the tasks in the game and distibutes them evenly among
         the non imposter players.
         """
         noOfIndividualTasks = len(self.tasks) % len(self.players)
