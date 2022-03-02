@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 
-#Models
+#Forms
 class CreateUserForm(UserCreationForm):
 	email = forms.EmailField(required=True) #Telling you that email is required
 

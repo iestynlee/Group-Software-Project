@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Lobby</title>
+</head>
+<body>
+{% block content %}
+<!--
+Player list will be here
+-->
+
+{% if request.user|has_group:"Gamemaster" %}
+<button type="submit" value="Startgame">Start Game</button>
+<button type="submit" value="Cancelgame">Cancel Game</button>
+{% endif %}
+{% endblock %}
+</body>
+</html>

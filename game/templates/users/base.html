@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Game</title>
+</head>
+<body>
+{% block nav %}
+<ul id="nav">
+	<li>{% block nav-home %}<a href="/">Home</a>{% endblock %}</li>
+	<li>{% block nav-lobbies %}<a href="/lobbies">Lobbies</a>{% endblock %}</li>
+	<li>{% block nav-logout %}<a href="/logout">Logout</a>{% endblock %}</li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}
+</body>
+</html>
