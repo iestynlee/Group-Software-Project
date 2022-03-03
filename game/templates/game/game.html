@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <script src='https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js'></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -53,7 +54,6 @@
         width: 50%;
       }
     </style>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
     <title>OpenLayers example</title>
   </head>
   <body>
@@ -65,7 +65,14 @@
     </div>
     <h2>My Map</h2>
     <div id="map" class="map"></div>
-
+    <button id="randomSwitch" onclick="randomswitch(50.73763133962232, -3.536951676811666)">Switch</button>
+    <button id="task" onclick="doTask(this.value)" >Do Task</button>
+    <ul id="list">
+    </ul>
+    <div id="end" style= "display: none">
+      <h2>Winner</h2>
+    <p>GOOD JOB! YOU COMPLETE ALL THE TASKS!!!</p>
+    </div>
     <script type="text/javascript">
     window.addEventListener("load", function(){
        setTimeout(
@@ -89,12 +96,18 @@
         ],
         view: new ol.View({
           center: ol.proj.fromLonLat([-3.53372, 50.73639]),
-          zoom: 12
+          zoom: 13.5
         })
       });
       //var json=$.getJSON("taskList.json");
-      var jsonData = {{data}};
-      for (let i=0;i<32;i++){
+      var jsonData = {{data|safe}};
+      var names = {{names|safe}};
+      var ul = document.getElementById("list");
+      for (let i=0;i<1;i++){
+        var li = document.createElement("li");
+        li.id=i;
+        li.appendChild(document.createTextNode(names[i]));
+        ul.appendChild(li);
         var layer = new ol.layer.Vector({
         source: new ol.source.Vector({
             features: [
@@ -104,26 +117,107 @@
             ]
          })
        });
+       layer.set('name', jsonData[i][2]);
        map.addLayer(layer);
-      }
-    if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(showPosition);
+     }
+     function doTask(number) {
+       document.getElementById(number).parentNode.removeChild(document.getElementById(number));
+       if (document.getElementById("list").innerHTML.trim()==""){
+         popItUp();
+       }
     }
-
+    function popItUp() {
+        var popup = document.getElementById("end");
+        popup.style.display = "block";
+    }
+    function start(){
+      document.getElementById("task").disabled = true;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showStartingPosition);
+      }
+      function showStartingPosition(position) {
+        var playerLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [
+                new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+                })
+            ]
+         })
+       });
+       playerLayer.set('name', 'playerLayer');
+       map.addLayer(playerLayer);
+     }
+   }start()
+   if (navigator.geolocation) {
+     navigator.geolocation.watchPosition(showPosition);
+   }
 
     function showPosition(position) {
+      var tasks = map.getLayers();
+      tasks.forEach(layer => {
+        if(layer.get('name') == 'playerLayer'){
+          map.removeLayer(layer)
+        }
+      });
+      var playerLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({
+          features: [
+              new ol.Feature({
+                  geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+              })
+          ]
+       })
+     });
+     playerLayer.set('name', 'playerLayer');
+     map.addLayer(playerLayer);
 
-     var playerLayer = new ol.layer.Vector({
-     source: new ol.source.Vector({
-         features: [
-             new ol.Feature({
-                 geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
-             })
-         ]
-      })
-    });
-    map.addLayer(playerLayer);
+
+
     }
+    function randomswitch(x,y) {
+      map.getLayers().forEach(layer => {
+        if(layer.get('name') == 'playerLayer'){
+          map.removeLayer(layer)
+        }
+      });
+      var playerLayer = new ol.layer.Vector({
+      source: new ol.source.Vector({
+          features: [
+              new ol.Feature({
+                  geometry: new ol.geom.Point(ol.proj.fromLonLat([y,x]))
+              })
+          ]
+       })
+     });
+     playerLayer.set('name', 'playerLayer');
+     map.addLayer(playerLayer);
+     var jsonData = {{data}};
+     for (let i=0;i<32;i++){
+       var loc = [jsonData[i][1], jsonData[i][0]];
+       console.log(loc + "     " +y + ", " +x);
+       if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
+         document.getElementById("task").disabled = false;
+         document.getElementById("task").value = i;
+         break;
+       }
+    }
+     /*
+     map.getLayers().forEach(layer => {
+       if(layer.get('name') == 'playerLayer'){
+         var feature = layer.getFeatures();
+         console.log(feature);
+         var loc=feature.getGeometry().getCoordinates();
+         console.log(loc + "     " +y + ", " +x);
+         if((loc[0]-0.00019)<=y<=(loc[0]+0.00019) && (loc[1]-0.00019)<=x<=(loc[1]+0.00019)){
+           document.getElementById("task").disabled = false;
+         }
+
+       }
+     });
+     */
+    }
+
     </script>
     <script type="text/javascript">
 

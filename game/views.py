@@ -143,8 +143,10 @@ def inGame(request):
 	jsonFile = open("game/taskList.txt")
 	tasksList = json.load(jsonFile)
 	tasksLocation=[]
+	names=[]
 	for x in tasksList["tasks"]:
-		anInstance = [x["latitude"], x["longitude"]]
+		anInstance = [x["latitude"], x["longitude"], x["number"]]
 		tasksLocation.append(anInstance)
+		names.append(x["name"])
 	jsonFile.close()
-	return render(request, 'game/game.html',{'data':tasksLocation})
+	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names})
