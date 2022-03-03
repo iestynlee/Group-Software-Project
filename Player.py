@@ -2,8 +2,7 @@ from Task import Task
 
 
 class Player:
-    
-    
+   
     def __init__(self, isImposter, user, gpsLocation, isAlive, individualTasks):
         """
         Constructor function

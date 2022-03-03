@@ -1,5 +1,6 @@
 from enum import Enum
 from operator import le
+from platform import platform
 from queue import Empty
 from time import sleep
 from typing import List
@@ -7,6 +8,7 @@ from Player import *
 from Task import *
 import random
 import json
+import threading
 
 class State(Enum):
     PENDING = 1
@@ -34,11 +36,14 @@ class Game:
         self.tasks = []
         jsonFile = open("taskList.txt")
         tasksList = json.load(jsonFile)
+        TaskTask = Empty
         for x in tasksList["tasks"]:
             anInstance = TaskTask(x["name"], x["number"], x["latitude"], x["longitude"], False)
             self.tasks.append(anInstance)
         jsonFile.close()
+       
         self.gameMaster = gameMaster
+    
 
     @property
     def noOfPlayers(self):
@@ -87,21 +92,8 @@ class Game:
         The number of imposters is equal or more to the number of crewmates
         """
 
-        print("Game is starting in 3")
-        sleep(1)
-        print("Game is starting in 2")
-        sleep(1)
-        print("Game is starting in 1")
-        sleep(1)
-        print("Game starting now")
+        
         self.state = "IN_PROGRESS"
-
-        while self.state == "IN_PROGRESS":
-            if self.players.isAlive <= self.players.isAlive and self.players.isImposter:
-                self.state == "FINISHED"
-
-
-
 
     def cancelGame(self) -> None:
         """
@@ -118,10 +110,12 @@ class Game:
         This function ends the game, changing the state to finished.
         A message should be displayed depending on who won.
         """
-        if self.players.isAlive <= self.players.isAlive and self.players.isImposter:
-            print("Imposters Win")
-        else:
-            print("Crewmates win")
+        imposterWin = False
+        while imposterWin == False:
+            if self.players.isAlive <= self.players.isAlive and self.players.isImposter:
+                imposterWin = True
+                self.state = "FINISHED"
+        return imposterWin
 
 
     def addPlayer(self, user) -> Player:
@@ -136,7 +130,7 @@ class Game:
         The player added to the game
         """
         self.players.append(user)
-        print("Player " + user + " has joined the lobby")
+        print("Player " + user.user + " has joined the lobby")
         return user
 
 
@@ -152,8 +146,8 @@ class Game:
         The player removed from the game
         """
         self.players.remove(user)
-        print(user + " has been removed from the game")
-        return user
+        print(user.user + " has been removed from the game")
+        return user.user
 
     def chooseImposter(self) -> List:
         """
@@ -163,8 +157,15 @@ class Game:
         The player(s) chosen to be imposters in a list
         """
 
-        numberOfImposters = input("Choose the desired number of imposters")
+        if len(self.players) >= 7:
+            numberOfImposters = 2
+        else:
+            numberOfImposters = 1
+
         listOfImposters = random.sample(self.players, numberOfImposters)
+
+        for i in range(len(listOfImposters)):
+            listOfImposters[i].isImposter = True
         return listOfImposters
 
 
@@ -173,11 +174,18 @@ class Game:
         This function takes all the tasks in the game and distibutes them evenly among
         the non imposter players.
         """
-        noOfIndividualTasks = len(self.tasks) % len(self.players)
+        noOfIndividualTasks = len(self.tasks) // len(self.players)
+        print(noOfIndividualTasks)
         for i in range(len(self.players)):
             for x in range(noOfIndividualTasks):
-                self.players[x].individualTask.append(random.choice(self.tasks))
+                self.players[i].individualTasks.append(random.choice(self.tasks))
 
 
-    def addTasks(self, task):
-        self.tasks.append(task)
+
+
+
+
+
+    
+
+
