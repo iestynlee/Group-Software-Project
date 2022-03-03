@@ -1,4 +1,4 @@
-# Location Based Game using Tasks and Killers
+# Location Based Game - Imposter
 
 To use:
 1. Download the application
