@@ -1,12 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-	{% load static %}
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
-	<style type="text/css">
-		*,
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    *,
 	*:before,
 	*:after{
     padding: 0;
@@ -49,105 +48,85 @@
     margin: 20px 0;
     line-height: 25px;
 }
-.map {
-	height: 300px;
-	width: 50%;
-}
-	</style>
-	<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
-	<title></title>
-</head>
-<body>
-	<h1>Game</h1>
-	<div class="popup">
-		<button id="close">&times;</button>
-		<h2>Your Role</h2>
-	<p>The Rules: Killers are suppose to kill the Innocents while the Innocents try to do all the tasks. If Killers kill everyone, then they win. However, if the Innocents finish the tasks first, they will win. Tasks can be done even if you are dead. Good luck</p>
-	</div>
-	{% if request.user|has_group:"Killer" %}
-	<h3>Killer</h3>
-	{% endif %}
-	{% if request.user|has_group:"Innocent" %}
-	<h3>Innocent</h3>
-	{% endif %}
-	{% if request.user|has_group:"Gamemaster" %}
-	<h3>GameMaster</h3>
-	{% endif %}
-  	<img src="{% static "images/map.png" %}" alt="Map" width=50% height=50%/>
-    {% if request.user|has_group:"Killer" %}
-    <!-- Player List here-->
-    <button>Kill</button>
-    {% endif %}
-    {% if request.user|has_group:"Innocent" %}
-    <!-- Task List here-->
-    <button>Do Task</button>
-    {% endif %}
-    {% if request.user|has_group:"Innocent" %}
-    <button>End Game</button>
-    {% endif %}
-		<h2>My Map</h2>
-<div id="map" class="map"></div>
+      .map {
+        height: 300px;
+        width: 50%;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <h1>Game</h1>
+    <div class="popup">
+      <button id="close">&times;</button>
+      <h2>Your Role</h2>
+    <p>The Rules: Killers are suppose to kill the Innocents while the Innocents try to do all the tasks. If Killers kill everyone, then they win. However, if the Innocents finish the tasks first, they will win. Tasks can be done even if you are dead. Good luck</p>
+    </div>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
 
-<script type="text/javascript">
-	var map = new ol.Map({
-		target: 'map',
-		layers: [
-			new ol.layer.Tile({
-				source: new ol.source.OSM()
-			})
-		],
-		view: new ol.View({
-			center: ol.proj.fromLonLat([-3.53372, 50.73639]),
-			zoom: 12
-		})
-	});
-	//var json=$.getJSON("taskList.json");
-	var jsonData = {{data}};
-	for (let i=0;i<32;i++){
-		var layer = new ol.layer.Vector({
-		source: new ol.source.Vector({
-				features: [
-						new ol.Feature({
-								geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
-						})
-				]
-		 })
-	 });
-	 map.addLayer(layer);
-	}
-if (navigator.geolocation) {
-	navigator.geolocation.watchPosition(showPosition);
-}
+    <script type="text/javascript">
+    window.addEventListener("load", function(){
+       setTimeout(
+           function open(event){
+               document.querySelector(".popup").style.display = "block";
+           },
+           2000
+       )
+    });
 
 
-function showPosition(position) {
+    document.querySelector("#close").addEventListener("click", function(){
+       document.querySelector(".popup").style.display = "none";
+    });
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([-3.53372, 50.73639]),
+          zoom: 12
+        })
+      });
+      //var json=$.getJSON("taskList.json");
+      var jsonData = {{data}};
+      for (let i=0;i<32;i++){
+        var layer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [
+                new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
+                })
+            ]
+         })
+       });
+       map.addLayer(layer);
+      }
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(showPosition);
+    }
 
- var playerLayer = new ol.layer.Vector({
- source: new ol.source.Vector({
-		 features: [
-				 new ol.Feature({
-						 geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
-				 })
-		 ]
-	})
-});
-map.addLayer(playerLayer);
-}
-</script>
-     <script type="text/javascript">
-window.addEventListener("load", function(){
-    setTimeout(
-        function open(event){
-            document.querySelector(".popup").style.display = "block";
-        },
-        2000
-    )
-});
 
+    function showPosition(position) {
 
-document.querySelector("#close").addEventListener("click", function(){
-    document.querySelector(".popup").style.display = "none";
-});
+     var playerLayer = new ol.layer.Vector({
+     source: new ol.source.Vector({
+         features: [
+             new ol.Feature({
+                 geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+             })
+         ]
+      })
+    });
+    map.addLayer(playerLayer);
+    }
     </script>
-</body>
+    <script type="text/javascript">
+
+   </script>
+  </body>
 </html>

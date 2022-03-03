@@ -13,6 +13,9 @@ from django.contrib.auth.models import User, Group
 from django.template import loader
 from django.http import Http404
 
+import json
+
+
 #GeoDjango
 #from django.views import generic
 #from django.contrib.gis.geos import fromstr
@@ -132,9 +135,16 @@ def lobbyForm(request):
     	if form.is_valid():
     		form.save()
     		redirect('game:lobbies')
-    return render(request,"game/createLobby.html",{'form':form}) 
+    return render(request,"game/createLobby.html",{'form':form})
 
 #The Game
 @login_required(login_url='game:login')
 def inGame(request):
-	return render(request, "game/game.html")
+	jsonFile = open("game/taskList.txt")
+	tasksList = json.load(jsonFile)
+	tasksLocation=[]
+	for x in tasksList["tasks"]:
+		anInstance = [x["latitude"], x["longitude"]]
+		tasksLocation.append(anInstance)
+	jsonFile.close()
+	return render(request, 'game/game.html',{'data':tasksLocation})
