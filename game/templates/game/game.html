@@ -4,6 +4,7 @@
 	{% load static %}
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
 	<style type="text/css">
 		*,
 	*:before,
@@ -48,7 +49,12 @@
     margin: 20px 0;
     line-height: 25px;
 }
+.map {
+	height: 300px;
+	width: 50%;
+}
 	</style>
+	<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js"></script>
 	<title></title>
 </head>
 <body>
@@ -67,7 +73,7 @@
 	{% if request.user|has_group:"Gamemaster" %}
 	<h3>GameMaster</h3>
 	{% endif %}
-    <img src="{% static "images/map.png" %}" alt="Map" width=50% height=50%/>
+  	<img src="{% static "images/map.png" %}" alt="Map" width=50% height=50%/>
     {% if request.user|has_group:"Killer" %}
     <!-- Player List here-->
     <button>Kill</button>
@@ -79,13 +85,62 @@
     {% if request.user|has_group:"Innocent" %}
     <button>End Game</button>
     {% endif %}
+		<h2>My Map</h2>
+<div id="map" class="map"></div>
+
+<script type="text/javascript">
+	var map = new ol.Map({
+		target: 'map',
+		layers: [
+			new ol.layer.Tile({
+				source: new ol.source.OSM()
+			})
+		],
+		view: new ol.View({
+			center: ol.proj.fromLonLat([-3.53372, 50.73639]),
+			zoom: 12
+		})
+	});
+	//var json=$.getJSON("taskList.json");
+	var jsonData = {{data}};
+	for (let i=0;i<32;i++){
+		var layer = new ol.layer.Vector({
+		source: new ol.source.Vector({
+				features: [
+						new ol.Feature({
+								geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
+						})
+				]
+		 })
+	 });
+	 map.addLayer(layer);
+	}
+if (navigator.geolocation) {
+	navigator.geolocation.watchPosition(showPosition);
+}
+
+
+function showPosition(position) {
+
+ var playerLayer = new ol.layer.Vector({
+ source: new ol.source.Vector({
+		 features: [
+				 new ol.Feature({
+						 geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+				 })
+		 ]
+	})
+});
+map.addLayer(playerLayer);
+}
+</script>
      <script type="text/javascript">
 window.addEventListener("load", function(){
     setTimeout(
         function open(event){
             document.querySelector(".popup").style.display = "block";
         },
-        2000 
+        2000
     )
 });
 
@@ -96,4 +151,3 @@ document.querySelector("#close").addEventListener("click", function(){
     </script>
 </body>
 </html>
-
