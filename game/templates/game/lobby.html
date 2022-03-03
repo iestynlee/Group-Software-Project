@@ -22,7 +22,7 @@
 <a href="/lobbies"><button>Leave Lobby</button></a>
 {% if request.user|has_group:"Gamemaster" %}
 <hr>
-<button type="submit" value="Startgame">Start Game</button>
+<a href="/game"><button>Start Game</button></a>
 <button type="submit" value="Cancelgame">Cancel Game</button>
 {% endif %}
 {% endblock %}
