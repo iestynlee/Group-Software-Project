@@ -65,7 +65,11 @@
     </div>
     <h2>My Map</h2>
     <div id="map" class="map"></div>
-    <button id="randomSwitch" onclick="randomswitch(50.73763133962232, -3.536951676811666)">Switch</button>
+    <button id="randomSwitch" onclick="randomswitch(50.73763133962232, -3.536951676811666)">Switch1</button>
+    <button id="randomSwitch1" onclick="randomswitch(50.73942183830498, -3.5336562834726597)">Switch2</button>
+    <button id="randomSwitch2" onclick="randomswitch(50.73641559265679, -3.5316147469911217)">Switch3</button>
+
+
     <button id="task" onclick="doTask(this.value)" >Do Task</button>
     <ul id="list">
     </ul>
@@ -91,7 +95,8 @@
         target: 'map',
         layers: [
           new ol.layer.Tile({
-            source: new ol.source.OSM()
+            source: new ol.source.OSM(),
+            name: 'tileLayer'
           })
         ],
         view: new ol.View({
@@ -103,7 +108,7 @@
       var jsonData = {{data|safe}};
       var names = {{names|safe}};
       var ul = document.getElementById("list");
-      for (let i=0;i<1;i++){
+      for (let i=0;i<3;i++){
         var li = document.createElement("li");
         li.id=i;
         li.appendChild(document.createTextNode(names[i]));
@@ -115,9 +120,9 @@
                     geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
                 })
             ]
-         })
+         }),
+         name: jsonData[i][2]
        });
-       layer.set('name', jsonData[i][2]);
        map.addLayer(layer);
      }
      function doTask(number) {
@@ -125,6 +130,15 @@
        if (document.getElementById("list").innerHTML.trim()==""){
          popItUp();
        }
+       var tasks = map.getLayers();
+       tasks.forEach(layer => {
+         console.log(layer.get('name'));
+         if(layer.get('name') == number){
+           map.removeLayer(layer)
+         }
+         
+       });
+       document.getElementById("task").disabled = true;
     }
     function popItUp() {
         var popup = document.getElementById("end");
@@ -136,6 +150,15 @@
         navigator.geolocation.getCurrentPosition(showStartingPosition);
       }
       function showStartingPosition(position) {
+        var myStyle = new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 5,
+        fill: new ol.style.Fill({color: 'black'}),
+        stroke: new ol.style.Stroke({
+          color: [255,0,0], width: 2
+        })
+      })
+    });
         var playerLayer = new ol.layer.Vector({
         source: new ol.source.Vector({
             features: [
@@ -143,17 +166,40 @@
                     geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
                 })
             ]
-         })
+         }),
+         style: myStyle,
+         name: 'playerLayer'
        });
-       playerLayer.set('name', 'playerLayer');
+       console.log([position.coords.longitude, position.coords.latitude]);
        map.addLayer(playerLayer);
      }
    }start()
+   /* once we actually try to move
    if (navigator.geolocation) {
      navigator.geolocation.watchPosition(showPosition);
    }
-
+*/
     function showPosition(position) {
+      map.getLayers().forEach(layer => {
+        if(layer.get('name') == 'playerLayer'){
+          //map.removeLayer(layer)
+          layer.getSource().forEachFeature(feature => {
+            feature.getGeometry().setCoordinates(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]));
+          });
+        }
+      });
+
+      var jsonData = {{data}};
+      for (let i=0;i<32;i++){
+        var loc = [jsonData[i][1], jsonData[i][0]];
+        console.log(loc + "     " +y + ", " +x);
+        if(((loc[0]-0.00019)<=position.coords.longitude && position.coords.longitude<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=position.coords.latitude && position.coords.latitude<=(loc[1]+0.00019))){
+          document.getElementById("task").disabled = false;
+          document.getElementById("task").value = i;
+          break;
+        }
+     }
+      /* Instead of deleting and creating a new layer we update the coordinates
       var tasks = map.getLayers();
       tasks.forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
@@ -171,27 +217,20 @@
      });
      playerLayer.set('name', 'playerLayer');
      map.addLayer(playerLayer);
-
+     */
 
 
     }
     function randomswitch(x,y) {
       map.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
-          map.removeLayer(layer)
+          //map.removeLayer(layer)
+          layer.getSource().forEachFeature(feature => {
+            feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
+          });
         }
       });
-      var playerLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({
-          features: [
-              new ol.Feature({
-                  geometry: new ol.geom.Point(ol.proj.fromLonLat([y,x]))
-              })
-          ]
-       })
-     });
-     playerLayer.set('name', 'playerLayer');
-     map.addLayer(playerLayer);
+
      var jsonData = {{data}};
      for (let i=0;i<32;i++){
        var loc = [jsonData[i][1], jsonData[i][0]];
