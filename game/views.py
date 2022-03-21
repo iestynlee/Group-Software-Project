@@ -106,7 +106,7 @@ def home(request):
 #Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	listlobbies = Lobby.objects.all()
+	listlobbies = Game.objects.all()
 	context = {'listlobbies': listlobbies}
 	return render(request, "game/lobbies.html", context)
 
