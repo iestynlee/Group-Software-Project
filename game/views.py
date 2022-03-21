@@ -14,10 +14,6 @@ from django.template import loader
 from django.http import Http404
 
 import json
-import sys
-#Need this here to set up path
-sys.path.insert(0, '/Group-Software-Project')
-from Game import *
 
 
 #GeoDjango
@@ -106,7 +102,7 @@ def home(request):
 #Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	listlobbies = Game.objects.all()
+	listlobbies = Lobby.objects.all()
 	context = {'listlobbies': listlobbies}
 	return render(request, "game/lobbies.html", context)
 
@@ -144,10 +140,6 @@ def lobbyForm(request):
 #The Game
 @login_required(login_url='game:login')
 def inGame(request):
-	#Example of game
-	game1 = Game(3, 1, [], [], 'Jakub')
-	print(game1.noOfPlayers)
-
 	jsonFile = open("game/taskList.txt")
 	tasksList = json.load(jsonFile)
 	tasksLocation=[]
@@ -157,5 +149,4 @@ def inGame(request):
 		tasksLocation.append(anInstance)
 		names.append(x["name"])
 	jsonFile.close()
-
 	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names})
