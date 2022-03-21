@@ -110,7 +110,7 @@
       var ul = document.getElementById("list");
       for (let i=0;i<3;i++){
         var li = document.createElement("li");
-        li.id=i;
+        li.id=i+1;
         li.appendChild(document.createTextNode(names[i]));
         ul.appendChild(li);
         var layer = new ol.layer.Vector({
@@ -126,17 +126,19 @@
        map.addLayer(layer);
      }
      function doTask(number) {
+       console.log("The task number: " + number);
        document.getElementById(number).parentNode.removeChild(document.getElementById(number));
        if (document.getElementById("list").innerHTML.trim()==""){
          popItUp();
        }
        var tasks = map.getLayers();
        tasks.forEach(layer => {
-         console.log(layer.get('name'));
-         if(layer.get('name') == number){
-           map.removeLayer(layer)
+         if(layer !== undefined){
+           console.log(layer.get('name'));
+           if(layer.get('name') == number){
+             map.removeLayer(layer);
+           }
          }
-         
        });
        document.getElementById("task").disabled = true;
     }
@@ -195,7 +197,7 @@
         console.log(loc + "     " +y + ", " +x);
         if(((loc[0]-0.00019)<=position.coords.longitude && position.coords.longitude<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=position.coords.latitude && position.coords.latitude<=(loc[1]+0.00019))){
           document.getElementById("task").disabled = false;
-          document.getElementById("task").value = i;
+          document.getElementById("task").value = i+1;
           break;
         }
      }
@@ -237,7 +239,7 @@
        console.log(loc + "     " +y + ", " +x);
        if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
          document.getElementById("task").disabled = false;
-         document.getElementById("task").value = i;
+         document.getElementById("task").value = i+1;
          break;
        }
     }
