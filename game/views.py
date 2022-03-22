@@ -163,7 +163,6 @@ def inGame(request):
 		names.append(x["name"])
 	jsonFile.close()
 	#Example of game
-	player1 = Player(False, "NormalUser",[] ,True, names[:16])
-	player2 = Player(False, "NormalUser2",[], True, names[16:])
-	playerImposter = Player(True, "Imposter",[], True, [])
-	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names})
+	isImposter = 'false';
+	locations = [[50.73773205777886, -3.5273476951213922], [50.737420204728565, -3.5390163992138413]]
+	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'isImposter': isImposter, 'locations': locations})
