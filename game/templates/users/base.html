@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+	{% load static %}
+
+	<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"> 
+  
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Game</title>
+	<h1 class="menu-header">Welcome to Campus App</h1>
+	
 </head>
-<body>
+<body class ="game">
 {% block nav %}
-<ul id="nav">
+<ul class="navbar" style="background-color: aqua; text-align: center;">
 	<li>{% block nav-home %}<a href="/">Home</a>{% endblock %}</li>
 	<li>{% block nav-lobbies %}<a href="/lobbies">Lobbies</a>{% endblock %}</li>
 	<li>{% block nav-logout %}<a href="/logout">Logout</a>{% endblock %}</li>

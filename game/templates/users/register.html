@@ -1,15 +1,26 @@
-<h3>Register here</h3>
-<hr>
+{% load static %}
 
-<form method="POST">
-	{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" name="Register">
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"> 
+  
+</head>
 
-</form>
-
-{% for message in messages %}
-    <p id="messages">{{message}}</p>
-{% endfor %}
-
-<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
+<div class="container">
+	<div class="title">SIGN UP</div>
+	<div class = "form">
+		<form method="POST">
+			<div class="username">
+				{% csrf_token %}
+				{{ form.as_p }}
+			</div>
+			<button class = "login-btn" type="submit" name="Register">LOGIN</button>
+		
+		</form>
+	</div>
+	
+	{% for message in messages %}
+		<p id="messages">{{message}}</p>
+	{% endfor %}
+	
+	<p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
+</div>

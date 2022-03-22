@@ -2,11 +2,10 @@
 
 {% load game_extras %}
 
+
 {% block nav-home %}<strong class="nav-active">Home</strong>{% endblock %}
 {% block content %}
-<h1>Welcome to Campus App</h1>
-<hr>
-Hello, {{user.username|default:'Guest'}}
+<div class="title" style="color: white;"> Hello, {{user.username|default:'Guest'}} </div>
 
 {% if request.user|has_group:"Gamemaster" %}
 <p>I am Gamemaster Group, This shows what role you have on the system</p>

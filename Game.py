@@ -33,10 +33,17 @@ class Game:
         self.noOfPlayers = noOfPlayers
         self.state = state
         self.players = []
-        self.tasks = tasks
-
+        self.tasks = []
+        jsonFile = open("taskList.txt")
+        tasksList = json.load(jsonFile)
+        TaskTask = Empty
+        for x in tasksList["tasks"]:
+            anInstance = TaskTask(x["name"], x["number"], x["latitude"], x["longitude"], False)
+            self.tasks.append(anInstance)
+        jsonFile.close()
+       
         self.gameMaster = gameMaster
-
+    
 
     @property
     def noOfPlayers(self):
@@ -85,7 +92,7 @@ class Game:
         The number of imposters is equal or more to the number of crewmates
         """
 
-
+        
         self.state = "IN_PROGRESS"
 
     def cancelGame(self) -> None:
@@ -172,3 +179,12 @@ class Game:
         for i in range(len(self.players)):
             for x in range(noOfIndividualTasks):
                 self.players[i].individualTasks.append(random.choice(self.tasks))
+
+
+
+
+
+
+    
+
+
