@@ -12,8 +12,14 @@ from django.contrib.auth.models import User, Group
 
 from django.template import loader
 from django.http import Http404
+from django.http import JsonResponse
 
 import json
+import sys
+#Need this here to set up path
+sys.path.insert(0, '/Group-Software-Project')
+from Game import *
+from Player import *
 
 
 #GeoDjango
@@ -102,7 +108,7 @@ def home(request):
 #Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	listlobbies = Lobby.objects.all()
+	listlobbies = Game.objects.all()
 	context = {'listlobbies': listlobbies}
 	return render(request, "game/lobbies.html", context)
 
@@ -140,6 +146,14 @@ def lobbyForm(request):
 #The Game
 @login_required(login_url='game:login')
 def inGame(request):
+	is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+	if is_ajax == True:
+			location = [request.GET.get('longitude'), request.GET.get('latitude')]
+
+			lon = location[0]
+			lat = location[1]
+			return JsonResponse({'lon': lon, 'lat':lat})
+
 	jsonFile = open("game/taskList.txt")
 	tasksList = json.load(jsonFile)
 	tasksLocation=[]
@@ -149,4 +163,10 @@ def inGame(request):
 		tasksLocation.append(anInstance)
 		names.append(x["name"])
 	jsonFile.close()
-	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names})
+	#Example of game
+	player1 = Player(False, "NormalUser",[] ,True, names[:16])
+	player2 = Player(False, "NormalUser2",[], True, names[16:])
+	playerImposter = Player(True, "Imposter",[], True, [])
+	players = [player1, player2, playerImposter]
+	game1 = Game(3, 1, players, [names], [])
+	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'game':game1, 'players':players})

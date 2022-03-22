@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <script src='https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/build/ol.js'></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.13.0/css/ol.css" type="text/css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -64,10 +65,13 @@
     <p>The Rules: Killers are suppose to kill the Innocents while the Innocents try to do all the tasks. If Killers kill everyone, then they win. However, if the Innocents finish the tasks first, they will win. Tasks can be done even if you are dead. Good luck</p>
     </div>
     <h2>My Map</h2>
-    <div id="map" class="map"></div>
-    <button id="randomSwitch" onclick="randomswitch(50.73763133962232, -3.536951676811666)">Switch1</button>
-    <button id="randomSwitch1" onclick="randomswitch(50.73942183830498, -3.5336562834726597)">Switch2</button>
-    <button id="randomSwitch2" onclick="randomswitch(50.73641559265679, -3.5316147469911217)">Switch3</button>
+    <div id="map" class="map" display="block"></div>
+    <div id="map1" class="map" display="none"></div>
+    <button id="randomSwitch" onclick="randomswitch1(50.73763133962232, -3.536951676811666)">Switch1</button>
+    <button id="randomSwitch1" onclick="randomswitch1(50.73942183830498, -3.5336562834726597)">Switch2</button>
+    <button id="randomSwitch2" onclick="randomswitch1(50.73641559265679, -3.5316147469911217)">Switch3</button>
+    <button id="showMap" onClick="showMap()">Show Map </button>
+    <button id="hideMap" onClick="hideMap()">Hide Map </button>
 
 
     <button id="task" onclick="doTask(this.value)" >Do Task</button>
@@ -77,7 +81,134 @@
       <h2>Winner</h2>
     <p>GOOD JOB! YOU COMPLETE ALL THE TASKS!!!</p>
     </div>
+    <h2 id="username">Start</h2>
+    <h2>{{game.player}} </h2>
+    {% for player in game.players %}
+      <h2>HERE {{player.user}} </h2>
+    {% endfor %}
+
     <script type="text/javascript">
+    var lonGlobal, latGlobal;
+
+    var mapLarge = new ol.Map({
+      target: 'map1',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM(),
+          name: 'tileLayer'
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-3.53372, 50.73639]),
+        zoom: 13.5
+      })
+    });
+    document.getElementById("task").disabled = true;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showStartingPosition);
+    }
+    function showStartingPosition(position) {
+      var map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM(),
+            name: 'tileLayer'
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
+          zoom: 16.5
+        })
+      });
+      //var json=$.getJSON("taskList.json");
+      var taskStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 5,
+          stroke: new ol.style.Stroke({
+            color: [255,150,0], width: 2
+          })
+        }),
+        text: new ol.style.Text({
+          font: '12px Calibri,sans-serif',
+          overflow: true,
+          fill: new ol.style.Fill({
+              color: '#000'
+          }),
+          stroke: new ol.style.Stroke({
+              color: '#fff',
+              width: 3
+          }),
+          text: "1"
+      })
+      });
+
+      var jsonData = {{data|safe}};
+      var names = {{names|safe}};
+      var ul = document.getElementById("list");
+      for (let i=0;i<3;i++){
+        var temp = taskStyle.clone();
+        temp.getText().setText((i+1).toString());
+        var li = document.createElement("li");
+        li.id=i+1;
+        li.appendChild(document.createTextNode(names[i]));
+        ul.appendChild(li);
+        var layer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [
+                new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
+                })
+            ]
+         }),
+         style: temp,
+         name: jsonData[i][2]
+       });
+       map.addLayer(layer);
+       mapLarge.addLayer(layer);
+     }
+        var myStyle = new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: 5,
+            fill: new ol.style.Fill({color: 'black'}),
+            stroke: new ol.style.Stroke({
+              color: [255,0,0], width: 2
+            })
+          })
+        });
+        var playerLayer = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [
+                new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+                })
+            ]
+         }),
+         style: myStyle,
+         name: 'playerLayer'
+       });
+       console.log([position.coords.longitude, position.coords.latitude]);
+       map.addLayer(playerLayer);
+       mapLarge.addLayer(playerLayer);
+       lonGlobal, latGlobal = position.coords.longitude, position.coords.latitude;
+
+   }
+    hideMap();
+    function showMap(){
+      mapLarge.getLayers().forEach(layer => {
+        if(layer.get('name') == 'playerLayer'){
+          layer.getSource().forEachFeature(feature => {
+            feature.getGeometry().setCoordinates(ol.proj.fromLonLat([lonGlobal, latGlobal]));
+          });
+        }
+      });
+      document.getElementById("map1").style.display="block";
+      document.getElementById("map").style.display="none";
+    }
+    function hideMap(){
+      document.getElementById("map1").style.display="none";
+      document.getElementById("map").style.display="block";
+    }
     window.addEventListener("load", function(){
        setTimeout(
            function open(event){
@@ -91,40 +222,7 @@
     document.querySelector("#close").addEventListener("click", function(){
        document.querySelector(".popup").style.display = "none";
     });
-      var map = new ol.Map({
-        target: 'map',
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM(),
-            name: 'tileLayer'
-          })
-        ],
-        view: new ol.View({
-          center: ol.proj.fromLonLat([-3.53372, 50.73639]),
-          zoom: 13.5
-        })
-      });
-      //var json=$.getJSON("taskList.json");
-      var jsonData = {{data|safe}};
-      var names = {{names|safe}};
-      var ul = document.getElementById("list");
-      for (let i=0;i<3;i++){
-        var li = document.createElement("li");
-        li.id=i+1;
-        li.appendChild(document.createTextNode(names[i]));
-        ul.appendChild(li);
-        var layer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [
-                new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
-                })
-            ]
-         }),
-         name: jsonData[i][2]
-       });
-       map.addLayer(layer);
-     }
+
      function doTask(number) {
        console.log("The task number: " + number);
        document.getElementById(number).parentNode.removeChild(document.getElementById(number));
@@ -146,47 +244,74 @@
         var popup = document.getElementById("end");
         popup.style.display = "block";
     }
-    function start(){
-      document.getElementById("task").disabled = true;
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showStartingPosition);
-      }
-      function showStartingPosition(position) {
-        var myStyle = new ol.style.Style({
-      image: new ol.style.Circle({
-        radius: 5,
-        fill: new ol.style.Fill({color: 'black'}),
-        stroke: new ol.style.Stroke({
-          color: [255,0,0], width: 2
-        })
-      })
-    });
-        var playerLayer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [
-                new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
-                })
-            ]
-         }),
-         style: myStyle,
-         name: 'playerLayer'
+
+   function newPlayer(x,y){
+     console.log("It happened" + x + y)
+       var myStyle = new ol.style.Style({
+         image: new ol.style.Circle({
+           radius: 5,
+           fill: new ol.style.Fill({color: 'blue'}),
+           stroke: new ol.style.Stroke({
+             color: [255,0,0], width: 2
+           })
+         })
        });
-       console.log([position.coords.longitude, position.coords.latitude]);
-       map.addLayer(playerLayer);
-     }
-   }start()
+       var layer = new ol.layer.Vector({
+       source: new ol.source.Vector({
+           features: [
+               new ol.Feature({
+                   geometry: new ol.geom.Point(ol.proj.fromLonLat([y,x]))
+               })
+           ]
+        }),
+        style: myStyle,
+        name: 'newPlayer'
+      });
+      map.addLayer(layer);
+    }
    /* once we actually try to move
    if (navigator.geolocation) {
      navigator.geolocation.watchPosition(showPosition);
    }
 */
+/*
+    function gameMasterStart(){
+      document.getElementById("task").disabled = true;
+      var players = {{players}}
+      var player1Loc = players[0].
+      function showStartingPosition(position) {
+          var myStyle = new ol.style.Style({
+        image: new ol.style.Circle({
+          radius: 5,
+          fill: new ol.style.Fill({color: 'black'}),
+          stroke: new ol.style.Stroke({
+            color: [255,0,0], width: 2
+          })
+        })
+      });
+          var playerLayer = new ol.layer.Vector({
+          source: new ol.source.Vector({
+              features: [
+                  new ol.Feature({
+                      geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
+                  })
+              ]
+           }),
+           style: myStyle,
+           name: 'playerLayer'
+         });
+         console.log([position.coords.longitude, position.coords.latitude]);
+         map.addLayer(playerLayer);
+     }
+   }gameMasterStart();
+   */
     function showPosition(position) {
       map.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
-          //map.removeLayer(layer)
           layer.getSource().forEachFeature(feature => {
+            lonGlobal, latGlobal = position.coords.longitude, position.coords.latitude;
             feature.getGeometry().setCoordinates(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]));
+
           });
         }
       });
@@ -201,34 +326,32 @@
           break;
         }
      }
-      /* Instead of deleting and creating a new layer we update the coordinates
-      var tasks = map.getLayers();
-      tasks.forEach(layer => {
-        if(layer.get('name') == 'playerLayer'){
-          map.removeLayer(layer)
-        }
-      });
-      var playerLayer = new ol.layer.Vector({
-      source: new ol.source.Vector({
-          features: [
-              new ol.Feature({
-                  geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
-              })
-          ]
-       })
-     });
-     playerLayer.set('name', 'playerLayer');
-     map.addLayer(playerLayer);
-     */
-
 
     }
-    function randomswitch(x,y) {
+    function randomswitch(x,y){
+      $.ajax({
+        url: '/game/',
+        type: 'get',
+        data:{
+          longitude: x,
+          latitude: y
+        },
+        success: function(response){
+          console.log(response)
+          newPlayer(response.lon, response.lat)
+        },
+        error: function(error){
+          console.log(error)
+        }
+      })
+    }
+    function randomswitch1(x,y) {
       map.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
           //map.removeLayer(layer)
           layer.getSource().forEachFeature(feature => {
             feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
+            lonGlobal, latGlobal = y,x;
           });
         }
       });
@@ -243,20 +366,7 @@
          break;
        }
     }
-     /*
-     map.getLayers().forEach(layer => {
-       if(layer.get('name') == 'playerLayer'){
-         var feature = layer.getFeatures();
-         console.log(feature);
-         var loc=feature.getGeometry().getCoordinates();
-         console.log(loc + "     " +y + ", " +x);
-         if((loc[0]-0.00019)<=y<=(loc[0]+0.00019) && (loc[1]-0.00019)<=x<=(loc[1]+0.00019)){
-           document.getElementById("task").disabled = false;
-         }
-
-       }
-     });
-     */
+    randomswitch(50.73540659686997, -3.5359459229200176)
     }
 
     </script>
