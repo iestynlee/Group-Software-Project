@@ -18,7 +18,6 @@ import json
 import sys
 #Need this here to set up path
 sys.path.insert(0, '/Group-Software-Project')
-from Game import *
 from Player import *
 
 
@@ -167,6 +166,4 @@ def inGame(request):
 	player1 = Player(False, "NormalUser",[] ,True, names[:16])
 	player2 = Player(False, "NormalUser2",[], True, names[16:])
 	playerImposter = Player(True, "Imposter",[], True, [])
-	players = [player1, player2, playerImposter]
-	game1 = Game(3, 1, players, [names], [])
-	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'game':game1, 'players':players})
+	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names})
