@@ -70,11 +70,13 @@
     <button id="randomSwitch" onclick="randomswitch1(50.73763133962232, -3.536951676811666)">Switch1</button>
     <button id="randomSwitch1" onclick="randomswitch1(50.73942183830498, -3.5336562834726597)">Switch2</button>
     <button id="randomSwitch2" onclick="randomswitch1(50.73641559265679, -3.5316147469911217)">Switch3</button>
-    <button id="showMap" onClick="showMap()">Show Map </button>
-    <button id="hideMap" onClick="hideMap()">Hide Map </button>
+    <button id="showMap" onClick="showMap()">Show Large Map </button>
+    <button id="hideMap" onClick="hideMap()">Hide Large Map </button>
 
 
     <button id="task" onclick="doTask(this.value)" >Do Task</button>
+    <button id="kill" onclick="kill()" >Kill</button>
+
     <ul id="list">
     </ul>
     <div id="end" style= "display: none">
@@ -88,8 +90,17 @@
     {% endfor %}
 
     <script type="text/javascript">
-    var lonGlobal, latGlobal;
+    var isImposter ={{isImposter}};
+    if( isImposter== true){
+      document.getElementById("kill").style.display = 'visible'
+      document.getElementById("task").style.display = 'none'
 
+    }else{
+      document.getElementById("kill").style.display = 'none'
+      document.getElementById("task").style.display = 'visible'
+    }
+    var lonGlobal, latGlobal;
+    var map;
     var mapLarge = new ol.Map({
       target: 'map1',
       layers: [
@@ -108,7 +119,7 @@
       navigator.geolocation.getCurrentPosition(showStartingPosition);
     }
     function showStartingPosition(position) {
-      var map = new ol.Map({
+      map = new ol.Map({
         target: 'map',
         layers: [
           new ol.layer.Tile({
@@ -187,18 +198,19 @@
          style: myStyle,
          name: 'playerLayer'
        });
-       console.log([position.coords.longitude, position.coords.latitude]);
        map.addLayer(playerLayer);
        mapLarge.addLayer(playerLayer);
-       lonGlobal, latGlobal = position.coords.longitude, position.coords.latitude;
+       lonGlobal = position.coords.longitude;
+       latGlobal = position.coords.latitude;
 
    }
-    hideMap();
     function showMap(){
       mapLarge.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
           layer.getSource().forEachFeature(feature => {
             feature.getGeometry().setCoordinates(ol.proj.fromLonLat([lonGlobal, latGlobal]));
+            console.log("playerLayer " + feature.getGeometry().getCoordinates());
+            console.log("playerLayer Should be: " + lonGlobal, latGlobal);
           });
         }
       });
@@ -208,7 +220,8 @@
     function hideMap(){
       document.getElementById("map1").style.display="none";
       document.getElementById("map").style.display="block";
-    }
+    }hideMap();
+
     window.addEventListener("load", function(){
        setTimeout(
            function open(event){
@@ -274,44 +287,13 @@
      navigator.geolocation.watchPosition(showPosition);
    }
 */
-/*
-    function gameMasterStart(){
-      document.getElementById("task").disabled = true;
-      var players = {{players}}
-      var player1Loc = players[0].
-      function showStartingPosition(position) {
-          var myStyle = new ol.style.Style({
-        image: new ol.style.Circle({
-          radius: 5,
-          fill: new ol.style.Fill({color: 'black'}),
-          stroke: new ol.style.Stroke({
-            color: [255,0,0], width: 2
-          })
-        })
-      });
-          var playerLayer = new ol.layer.Vector({
-          source: new ol.source.Vector({
-              features: [
-                  new ol.Feature({
-                      geometry: new ol.geom.Point(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]))
-                  })
-              ]
-           }),
-           style: myStyle,
-           name: 'playerLayer'
-         });
-         console.log([position.coords.longitude, position.coords.latitude]);
-         map.addLayer(playerLayer);
-     }
-   }gameMasterStart();
-   */
     function showPosition(position) {
       map.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
           layer.getSource().forEachFeature(feature => {
-            lonGlobal, latGlobal = position.coords.longitude, position.coords.latitude;
+            lonGlobalposition.coords.longitude;
+            latGlobal = position.coords.latitude;
             feature.getGeometry().setCoordinates(ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]));
-
           });
         }
       });
@@ -351,24 +333,37 @@
           //map.removeLayer(layer)
           layer.getSource().forEachFeature(feature => {
             feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
-            lonGlobal, latGlobal = y,x;
+            lonGlobal = y;
+            latGlobal = x;
           });
         }
       });
-
-     var jsonData = {{data}};
-     for (let i=0;i<32;i++){
-       var loc = [jsonData[i][1], jsonData[i][0]];
-       console.log(loc + "     " +y + ", " +x);
-       if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
-         document.getElementById("task").disabled = false;
-         document.getElementById("task").value = i+1;
-         break;
-       }
-    }
-    randomswitch(50.73540659686997, -3.5359459229200176)
-    }
-
+      map.getView().setCenter(ol.proj.fromLonLat([y,x]));
+      console.log("here" + map.getView().getCenter());
+      if(isImposter == true){
+        var otherUserLocation = {{locations}}
+        for (let i=0;i<3;i++){
+          var loc = [otherUserLocation[i][1], otherUserLocation[i][0]];
+          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
+            document.getElementById("kill").disabled = false;
+            //document.getElementById("kill").value = playerName;
+            break;
+          }
+        }
+      }
+      else{
+        var jsonData = {{data}};
+        for (let i=0;i<3;i++){
+          var loc = [jsonData[i][1], jsonData[i][0]];
+          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
+            document.getElementById("task").disabled = false;
+            document.getElementById("task").value = i+1;
+            break;
+          }
+        }
+        randomswitch(50.73540659686997, -3.5359459229200176)
+        }
+      }
     </script>
     <script type="text/javascript">
 
