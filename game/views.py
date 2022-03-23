@@ -117,20 +117,24 @@ def inLobby(request, lobby_name):
 	return render(request, 'game/lobby.html', {'lobby': lobby})
 
 @login_required(login_url='game:login')
-def add_user_to_lobby(request, lobby_name):
-	lobby = Property.objects.get(Lobby, lobby_name)
-	if lobby.users.filter(pk=request.user.pk).exists():
-		return redirect('game:lobby')
-	elif not lobby.is_occupied(request.user):
-		lobby.users.add(request.user)
-		return redirect('game:lobby')
+def addUser(request, lobby_name):
+	lobby = Lobby.objects.get(pk=lobby_name)
+	user = None
+	if request.user.is_authenticated():
+		username = request.user
+		if lobby.is_occupied(username):
+			lobby.users.add(username)
+			return redirect('game:lobby')
+		else: 
+			return redirect('game:lobbies')
 	else:
 		return render(request, "users/error_page.html")
-
+	
 @login_required(login_url='game:login')
-def cancelLobby(request):
-	cancel = lobby.objects.filter(id=id)
-	cancel.delete()
+def cancelLobby(request, lobby_name):
+	lobby = Lobby.objects.get(pk=lobby_name)
+	lobby.delete()
+	return redirect('game:lobbies')
 
 @login_required(login_url='game:login')
 def lobbyForm(request):

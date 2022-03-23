@@ -18,12 +18,13 @@
     <li>{{ user.username }}</li>
 {% endfor %}
 </ul>
-
+{% if request.user|not_group:"Gamemaster" %}
 <a href="/lobbies"><button>Leave Lobby</button></a>
+{% endif %}
 {% if request.user|has_group:"Gamemaster" %}
 <hr>
 <a href="/game"><button>Start Game</button></a>
-<button type="submit" value="Cancelgame">Cancel Game</button>
+<a href="{% url 'game:cancel-lobby' lobby.id %}"><button>Cancel Game</button></a>
 {% endif %}
 {% endblock %}
 </body>
