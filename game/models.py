@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from django.db import models
 from django.contrib.auth.models import User, Group
 import uuid
@@ -16,14 +15,13 @@ class Lobby(models.Model):
 	def _players(self):
 		return self.player_set.all()
 	def _is_occupied(self):
-		return self.users.count() >= 11
+		return self.users.count() <= 11
 	def _gameState(self):
 		return self.gameState
-	
+
 
 class Player(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
-	playerName = models.CharField(max_length=200, default="Guest", unique=True)
 	isImposter = models.BooleanField(default=False)
 	isAlive = models.BooleanField(default=False)
 	gpsLongitude = models.FloatField(default=0)
@@ -31,9 +29,8 @@ class Player(models.Model):
 	lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, default=None)
 	color = models.CharField(max_length=10, default="#000000")
 
-
 	def __str__(self):
-		return self.playerName
+		return self.user.username
 	def _user(self):
 		return self.user
 	def _isImposter(self):
@@ -52,7 +49,7 @@ class Player(models.Model):
 
 
 class Task(models.Model):
-	
+
 	player = models.ForeignKey(Player, on_delete=models.CASCADE, default=None)
 	taskName =  models.CharField(max_length=200, default='Task')
 	gpsLongitude = models.FloatField(default=0)
@@ -72,9 +69,3 @@ class Task(models.Model):
 		return self.taskNumber
 	def _isDone(self):
 		return self.isDone
-	
-
-
-
-
-

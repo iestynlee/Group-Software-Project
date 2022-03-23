@@ -18,8 +18,6 @@ from django.http import JsonResponse
 import json
 import sys
 import random
-#Need this here to set up path
-sys.path.insert(0, '/Group-Software-Project')
 
 
 
@@ -122,16 +120,19 @@ def inLobby(request, lobby_name):
 		users = thislobby._users()
 		colors = ['#000000', '#0000FF', '#FF0000', '#FFA500', '#90EE90', '#FFFF00', '#FFC0CB', '#6a0dad', '#ADD8E6', '#006400']
 		#players created
+		print("The length of users " + str(len(users)))
 		for i in range(len(users)):
-			player = Player(user = users[i], playerName = users[i].username, lobby= thislobby, color = colors[i])
+			player = Player(user = users[i], lobby = thislobby, color = colors[i])
 			player.save()
 		#decide imposters
 		players = thislobby._players()
-		if len(players>=7):
+		if len(players) >=7:
 			numberOfImposters = 2
 		else:
 			numberOfImposters = 1
+		print(users)
 		listOfImposters = random.sample(players, numberOfImposters)
+
 		for i in listOfImposters:
 			player = listOfImposters[i]
 			player.isImposter = True
@@ -158,22 +159,27 @@ def inLobby(request, lobby_name):
 				gameTasks.remove(task)
 		return render(request, 'game/game.html', {'lobby': thislobby})
 	else:
-		return render(request, 'game/lobby.html', {'lobby': thislobby})
+		username = request.user
+		if thislobby._is_occupied():
+			thislobby.users.add(username)
+			thislobby.save()
+			return render(request, 'game/lobby.html', {'lobby': thislobby})
+		else:
+			return redirect('game:lobbies')
 
 @login_required(login_url='game:login')
 def addUser(request, lobby_name):
 	lobby = Lobby.objects.get(pk=lobby_name)
-	user = None
-	if request.user.is_authenticated():
-		username = request.user
-		if lobby.is_occupied(username):
-			lobby.users.add(username)
-			return redirect('game:lobby')
-		else: 
-			return redirect('game:lobbies')
+	username = request.user
+	print("username" + username)
+	if lobby.is_occupied():
+		lobby.users.add(username)
+		lobby.save()
+		return redirect('game:lobby')
 	else:
-		return render(request, "users/error_page.html")
-	
+		return redirect('game:lobbies')
+
+
 @login_required(login_url='game:login')
 def cancelLobby(request, lobby_name):
 	lobby = Lobby.objects.get(pk=lobby_name)

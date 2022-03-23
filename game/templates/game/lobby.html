@@ -14,7 +14,7 @@
 <!--Player list will be here-->
 
 <ul>
-{% for player in lobby.players %}
+{% for user in lobby.users %}
     <li>{{ user.username }}</li>
 {% endfor %}
 </ul>
@@ -24,6 +24,7 @@
 {% if request.user|has_group:"Gamemaster" %}
 <hr>
 <form action="" method="post">
+		{% csrf_token %}
     <button name="Start Game" value="True">Start Game</button>
 </form>
 

@@ -10,7 +10,7 @@ User: {{user.username|default:'Guest'}}
 <br>
 <!--List of Lobbies-->
 {% for lobby in listlobbies %}
-	<li><a href="{% url 'game:lobby' lobby.id %}"><button onclick="window.location.href='/add_user_to_lobby/';">{{ lobby.lobby_name }}</button></a></li>
+	<li><a href="{% url 'game:lobby' lobby.id %}"><button">{{ lobby.lobby_name }}</button></a></li>
 {% endfor %}
 <hr>
 <!--Button to create lobby-->
