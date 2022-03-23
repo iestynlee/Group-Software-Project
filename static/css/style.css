@@ -22,14 +22,37 @@ body {
     outline: 3px solid #CAEBF2;
 }
 
+.container2 {
+    position: center;
+    top: 250px;
+    margin: 100px auto;
+    width: 40%;
+    background-color: #404040;
+    padding: 80px;
+    border-radius: 30px;
+    outline: 3px solid #B3B3B3;
+}
+
 .title, .subtitle {
     text-align: center;
     font-weight: bolder;
     color: black;
 }
+
 .title {
     font-size: 35px;
 }
+
+.title2, .subtitle2 {
+    text-align: center;
+    font-weight: bolder;
+    color: white;
+}
+
+.title2 {
+    font-size: 35px;
+}
+
 .form {
     width: 100%;
     
@@ -41,7 +64,7 @@ body {
     outline: none;
     background: none;
 }
-.username, .password, .email {
+.username, .password, .email, .lobby {
     display: block;
     border-radius: 30px;
     border: 1px solid;
@@ -67,6 +90,18 @@ body {
     color: white;
     margin-bottom: 5px;
 }
+
+.lobby-btn {
+    width: 100%;
+    padding: 12px 10px;
+    border: none;
+    font-size: 18px;
+    border-radius: 30px;
+    background-color: #282828;
+    color: white;
+    margin-bottom: 5px;
+}
+
 .game {
     background-color: #121212;
     background-image: none;
