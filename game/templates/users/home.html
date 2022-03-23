@@ -2,13 +2,21 @@
 
 {% load game_extras %}
 
-
-{% block nav-home %}<strong class="nav-active">Home</strong>{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Home Page</title>
+</head>
+<body>
 {% block content %}
-<div class="title" style="color: white;"> Hello, {{user.username|default:'Guest'}} </div>
+<div class="title" style="color: #FFFFFF;"> Hello, {{user.username|default:'Guest'}} </div>
+<center><h5 style="color: #B3B3B3">Welcome to the game, Imposter. If you want to start playing go to the Lobbies tab and wait for a Lobby</h5></center>
 
-{% if request.user|has_group:"Gamemaster" %}
-<p>I am Gamemaster Group, This shows what role you have on the system</p>
-{% endif %}
+<!--Logo Image here-->
 
 {% endblock %}
+</body>
+</html>
+
