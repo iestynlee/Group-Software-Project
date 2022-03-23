@@ -180,15 +180,16 @@ def cancelLobby(request, lobby_name):
 	lobby.delete()
 	return redirect('game:lobbies')
 
-@login_required(login_url='game:login')
+@login_required (login_url='game:login')
 def lobbyForm(request):
-    form = LobbyForm()
-    if request.method == 'POST':
-    	form = LobbyForm(request.POST)
+	form = LobbyForm()
+	if request.method == 'POST':
+		form = LobbyForm(request.POST)
 		if form.is_valid():
-    		form.save()
-    		redirect('game:lobbies')
-    return render(request,"game/createLobby.html",{'form':form})
+			form.save()
+			redirect('game:lobbies')
+	return render(request,"game/createLobby.html",{'form':form})
+
 
 #The Game
 @login_required(login_url='game:login')
