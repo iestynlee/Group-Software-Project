@@ -13,7 +13,7 @@ urlpatterns = [
 	path('lobbies/', views.lobbies, name="lobbies"),
 	path('createlobby/', views.lobbyForm, name="createlobby"),
 	path('lobby/<lobby_name>/', views.inLobby, name='lobby'),
-	path('add_user_to_lobby/<lobby_name>/', views.addUser, name='add_user_to_lobby'),
+	path('add_user_lobby/<lobby_name>/', views.addUser, name='add_user'),
 	path('delete_lobby/<lobby_name>/', views.cancelLobby, name='cancel-lobby'),
 
 	#Game

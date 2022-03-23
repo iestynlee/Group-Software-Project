@@ -7,20 +7,21 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    
+    overflow: hidden;
     
 }
 
-.container {
-    position: relative;
+.container2 {
+    position: center;
     top: 250px;
     margin: 100px auto;
-    width: 350px;
+    width: 40%;
     background-color: white;
     padding: 80px;
     border-radius: 30px;
     outline: 3px solid aqua;
 }
+
 .title, .subtitle {
     text-align: center;
     font-weight: bolder;
@@ -40,7 +41,7 @@ body {
     outline: none;
     background: none;
 }
-.username, .password {
+.username, .password, .email {
     display: block;
     border-radius: 30px;
     border: 1px solid;

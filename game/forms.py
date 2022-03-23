@@ -7,7 +7,10 @@ from .models import *
 
 #Forms
 class CreateUserForm(UserCreationForm):
-	email = forms.EmailField(required=True) #Telling you that email is required
+	email = forms.EmailField(required=True, label='email',widget=forms.TextInput(attrs={'placeholder':'Email...'})) #Telling you that email is required
+	username = forms.CharField(label='username',widget=forms.TextInput(attrs={'placeholder':'Username...'}))
+	password1 = forms.CharField(label='password1',widget=forms.PasswordInput(attrs={'placeholder':'Password...'})) 
+	password2 = forms.CharField(label='password2',widget=forms.PasswordInput(attrs={'placeholder':'Confirm Password...'})) 
 
 	class Meta:
 		model = User
