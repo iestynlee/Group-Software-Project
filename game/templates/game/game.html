@@ -112,7 +112,8 @@
       view: new ol.View({
         center: ol.proj.fromLonLat([-3.53372, 50.73639]),
         zoom: 13.5
-      })
+      }),
+      controls: []
     });
     document.getElementById("task").disabled = true;
     if (navigator.geolocation) {
@@ -130,7 +131,9 @@
         view: new ol.View({
           center: ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
           zoom: 16.5
-        })
+        }),
+        controls: [],
+        interactions: []
       });
       //var json=$.getJSON("taskList.json");
       var taskStyle = new ol.style.Style({
