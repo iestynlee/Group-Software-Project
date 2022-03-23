@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-b@u9n(@7e(4ie^y*s9x+0o%m@6%pg+@=q(n9fs!3*1+2j1(8%l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["172.16.14.240"]
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'game',
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
