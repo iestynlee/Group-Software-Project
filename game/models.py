@@ -16,16 +16,19 @@ class Lobby(models.Model):
 	def _players(self):
 		return self.player_set.all()
 	def _is_occupied(self):
-		return self.players.count() >= 10
+		return self.users.count() >= 11
+	def _gameState(self):
+		return self.gameState
+	
 
 class Player(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	playerName = models.CharField(max_length=200, default="Guest")
+	user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
+	playerName = models.CharField(max_length=200, default="Guest", unique=True)
 	isImposter = models.BooleanField(default=False)
 	isAlive = models.BooleanField(default=False)
 	gpsLongitude = models.FloatField(default=0)
 	gpsLatitude = models.FloatField(default=0)
-	lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, default=NULL)
+	lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, default=None)
 	color = models.CharField(max_length=10, default="#000000")
 
 
@@ -50,7 +53,7 @@ class Player(models.Model):
 
 class Task(models.Model):
 	
-	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+	player = models.ForeignKey(Player, on_delete=models.CASCADE, default=None)
 	taskName =  models.CharField(max_length=200, default='Task')
 	gpsLongitude = models.FloatField(default=0)
 	gpsLatitude = models.FloatField(default=0)

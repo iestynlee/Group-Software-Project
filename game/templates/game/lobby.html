@@ -23,7 +23,11 @@
 {% endif %}
 {% if request.user|has_group:"Gamemaster" %}
 <hr>
-<a href="/game"><button>Start Game</button></a>
+<form action="" method="post">
+    <button name="Start Game" value="True">Start Game</button>
+</form>
+
+
 <a href="{% url 'game:cancel-lobby' lobby.id %}"><button>Cancel Game</button></a>
 {% endif %}
 {% endblock %}
