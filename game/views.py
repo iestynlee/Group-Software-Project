@@ -164,7 +164,7 @@ def inLobby(request, lobby_name):
 				task.player = i
 				task.save()
 				gameTasks.remove(task)
-		return render(request, 'game/game.html', {'lobby': thislobby})
+		return render(request, 'game/lobby.html', {'lobby': thislobby})
 	else:
 		username = request.user
 		if thislobby._is_occupied():
