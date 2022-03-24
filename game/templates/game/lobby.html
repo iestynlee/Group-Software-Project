@@ -35,6 +35,7 @@
 {% endif %}
 {% if request.user|has_group:"Gamemaster" %}
 <hr style="color: #404040">
+<div class="row">
 <form action="" method="post">
 		{% csrf_token %}
     <button name="Start Game" value="True">Start Game</button>
@@ -42,6 +43,7 @@
 
 
 <a href="{% url 'game:cancel-lobby' lobby.id %}"><button>Cancel Game</button></a>
+</div>
 {% endif %}
 {% endblock %}
 
