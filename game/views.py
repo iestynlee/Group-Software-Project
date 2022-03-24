@@ -123,9 +123,8 @@ def inLobby(request, lobby_name):
 		#players created
 		print("The length of users " + str(len(users)))
 		for i in range(len(users)):
-			if is_gamemaster(i)==False:
-				player = Player(user = users[i], lobby = thislobby, color = colors[i])
-				player.save()
+			player = Player(user = users[i], lobby = thislobby, color = colors[i])
+			player.save()
 		#decide imposters
 		players = Player.objects.all().filter(lobby = thislobby)
 		print("THe players" + str(players))
@@ -139,19 +138,21 @@ def inLobby(request, lobby_name):
 		else:
 			numberOfImposters = 1
 			ran1 = random.randint(0,len(players)-1)
+		crewmates = []
 
 		for i in range(0, len(players)):
+			player = players[i]
 			if i == ran1:
-				player = players[i]
 				player.isImposter = True
 				player.save()
+			else:
+				player.isAlive
+				player.save()
+				crewmates.append(player)
+
 		jsonFile = open("game/taskList.txt")
 		tasksList = json.load(jsonFile)
 		gameTasks = []
-		crewmates = []
-		for x in players:
-			if x._isImposter() == False:
-				crewmates.append(player)
 		#distribute tasks
 		for x in tasksList["tasks"]:
 			task = Task(taskName = x["name"], gpsLongitude = x["longitude"], gpsLatitude = x["latitude"], taskNumber =x["number"])
@@ -217,12 +218,11 @@ def inGame(request, lobby_name):
 	is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 	if is_ajax == True:
 		if request.GET.get('longitude') != None:
-			
+
 			location = [request.GET.get('longitude'), request.GET.get('latitude')]
-			if is_gamemaster(i)==False:
-				thisPlayer = Player.objects.get(user = request.user)
-				thisPlayer.gpsLongitude = location[0]
-				thisPlayer.gpsLatitude = location[1]
+			thisPlayer = Player.objects.get(user = request.user)
+			thisPlayer.gpsLongitude = location[0]
+			thisPlayer.gpsLatitude = location[1]
 			otherPlayers = Player.objects.all().filter(lobby = thisLobby).exclude(user = request.user)
 			otherPlayerData = []
 			for i in range(len(otherPlayers)):
@@ -244,7 +244,7 @@ def inGame(request, lobby_name):
 				if i.isAlive == True:
 					crewmatesAllDead = False
 			#winconditioncheck end
-			
+
 			return JsonResponse({'otherPlayerData': otherPlayerData, 'tasksAllFinished':tasksAllFinished, 'crewmatesAllDead': crewmatesAllDead})
 		elif request.GET.get('color'):
 			#wincondition check
@@ -293,6 +293,6 @@ def inGame(request, lobby_name):
 	else:
 		isImposter = 'false'
 
+	color = player.color
 
-
-	return render(request, 'game/game.html',{'data':taskLocation, 'names':names, 'isImposter': isImposter, 'locations': locations, 'username':request.user})
+	return render(request, 'game/game.html',{'data':taskLocation, 'names':names, 'isImposter': isImposter, 'locations': locations, 'username':request.user, 'color': color})

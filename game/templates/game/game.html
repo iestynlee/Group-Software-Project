@@ -14,7 +14,7 @@
     margin: 0;
     box-sizing: border-box;
 }
-	   
+
 body{
   background-color: #222222;
 }
@@ -38,7 +38,7 @@ ul{
       padding-top: 2%;
       padding-bottom: 0.5%;
     }
-	    
+
 .popup{
     background-color: #ffffff;
     width: 420px;
@@ -120,13 +120,17 @@ ul{
 	  </center>
     <script type="text/javascript">
     var isImposter ={{isImposter}};
-    if( isImposter== false){
+    if( isImposter== true){
       document.getElementById("kill").style.display = 'visible'
       document.getElementById("task").style.display = 'none'
+      document.getElementById("kill").disabled = true;
+
 
     }else{
       document.getElementById("kill").style.display = 'none'
       document.getElementById("task").style.display = 'visible'
+      document.getElementById("task").disabled = true;
+
     }
     var lonGlobal, latGlobal;
     var map;
@@ -144,7 +148,6 @@ ul{
       }),
       controls: []
     });
-    document.getElementById("task").disabled = true;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(showStartingPosition);
     }
@@ -189,6 +192,7 @@ ul{
       var jsonData = {{data|safe}};
       var names = {{names|safe}};
       var ul = document.getElementById("list");
+      console.log(jsonData)
       if(isImposter == false){
         for (let i=0;i<4;i++){
           var temp = taskStyle.clone();
@@ -213,10 +217,11 @@ ul{
          mapLarge.addLayer(layer);
        }
      }
+     var col = {{color.color}}
         var myStyle = new ol.style.Style({
           image: new ol.style.Circle({
             radius: 5,
-            fill: new ol.style.Fill({color: 'black'}),
+            fill: new ol.style.Fill({color: "black"}),
             stroke: new ol.style.Stroke({
               color: [255,0,0], width: 2
             })
@@ -294,8 +299,7 @@ ul{
     }
 
    function newPlayer(x,y){
-     console.log("It happened" + x + y)
-       var myStyle = new ol.style.Style({
+       var newPlayerStyle = new ol.style.Style({
          image: new ol.style.Circle({
            radius: 5,
            fill: new ol.style.Fill({color: 'blue'}),
@@ -304,7 +308,7 @@ ul{
            })
          })
        });
-       var layer = new ol.layer.Vector({
+       var newPlayer = new ol.layer.Vector({
        source: new ol.source.Vector({
            features: [
                new ol.Feature({
@@ -312,10 +316,11 @@ ul{
                })
            ]
         }),
-        style: myStyle,
+        style: newPlayerStyle,
         name: 'newPlayer'
       });
-      map.addLayer(layer);
+      console.log("It happened " + x + y)
+      map.addLayer(newPlayer);
     }
    /* once we actually try to move
    if (navigator.geolocation) {
@@ -345,12 +350,37 @@ ul{
      }
 
     }
-    function passTaskNum(y){
+    function passTaskNum(x,z){
       $.ajax({
         url: '/game/'+z,
         type: 'get',
-
+        data:{
+          taskNumber: x
+        },
+      success: function(response){
+        console.log(response)
+        newPlayer(response.otherPlayerData[0],response.otherPlayerData[1] )
+      },
+      error: function(error){
+        console.log(error)
+      }
       })
+    }
+    function passColor(x,z){
+      $.ajax({
+        url: '/game/'+z,
+        type: 'get',
+        data:{
+          color: x
+        },
+      success: function(response){
+        console.log(response)
+        newPlayer(response.otherPlayerData[0,1])
+      },
+      error: function(error){
+        console.log(error)
+      }
+     })
     }
     function randomswitch(x,y,z){
       $.ajax({
@@ -362,42 +392,31 @@ ul{
         },
         success: function(response){
           console.log(response)
-          newPlayer(response.otherPlayerData[0,1])
+          newPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1])
         },
         error: function(error){
-          console.log(error)
+          console.log("error" + error)
         }
       })
     }
     function randomswitch1(z) {
-      var locations = {{data}}
-      console.log(locations)
-      var y = locations[z][1]
-      var x = locations[z][2]
-      map.getLayers().forEach(layer => {
-        if(layer.get('name') == 'playerLayer'){
-          //map.removeLayer(layer)
-          layer.getSource().forEachFeature(feature => {
-            feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
-            lonGlobal = y;
-            latGlobal = x;
-          });
-        }
-      });
-      map.getView().setCenter(ol.proj.fromLonLat([y,x]));
-      console.log("here" + map.getView().getCenter());
-      if(isImposter == false){
-        var otherUserLocation = {{locations}}
-        for (let i=0;i<3;i++){
-          var loc = [otherUserLocation[i][1], otherUserLocation[i][0]];
-          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
-            document.getElementById("kill").disabled = false;
-            //document.getElementById("kill").value = playerName;
-            break;
+      if (isImposter == false){
+        var locations = {{data}}
+        console.log(locations)
+        var y = locations[z][1]
+        var x = locations[z][2]
+        map.getLayers().forEach(layer => {
+          if(layer.get('name') == 'playerLayer'){
+            //map.removeLayer(layer)
+            layer.getSource().forEachFeature(feature => {
+              feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
+              lonGlobal = y;
+              latGlobal = x;
+            });
           }
-        }
-      }
-      else{
+        });
+        map.getView().setCenter(ol.proj.fromLonLat([y,x]));
+        console.log("here" + map.getView().getCenter());
         var jsonData = {{data}};
         for (let i=0;i<4;i++){
           var loc = [jsonData[i][1], jsonData[i][2]];
@@ -410,9 +429,42 @@ ul{
         var url =window.location.href;
         var segments = url.split( '/' );
         var id = segments[4];
-        randomswitch(50.73540659686997, -3.5359459229200176, id);
+        randomswitch(y, x, id);
+        }
+
+      else{
+        var locationsNew = [-3.5393276812220655, 50.735414279860606]
+        map.getLayers().forEach(layer => {
+          if(layer.get('name') == 'playerLayer'){
+            layer.getSource().forEachFeature(feature => {
+              feature.getGeometry().setCoordinates(ol.proj.fromLonLat(locationsNew));
+              lonGlobal = locationsNew[0];
+              latGlobal = locationsNew[1];
+              console.log("New stuff" + locationsNew);
+            });
+          }
+        });
+        map.getView().setCenter(ol.proj.fromLonLat(locationsNew));
+        var url =window.location.href;
+        var segments = url.split( '/' );
+        var id = segments[4];
+        randomswitch(50.73541427986060, -3.5393276812220655, id);
+        var otherUserLocation = {{locations}}
+        for (let i=0;i<3;i++){
+          var loc = [otherUserLocation[i][1], otherUserLocation[i][0]];
+          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
+            document.getElementById("kill").disabled = false;
+            document.getElementById("kill").value = playerName;
+            break;
+          }
         }
       }
+    }
+
+    function kill(){
+
+    }
+
     </script>
     <script type="text/javascript">
 
