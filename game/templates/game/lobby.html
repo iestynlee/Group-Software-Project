@@ -35,7 +35,11 @@
 	{{ user.username|json_script:"user-name" }}
     <script>
         const lobbyName = JSON.parse(document.getElementById('lobby-name').textContent);
+<<<<<<< Updated upstream
 		const username = JSON.parse(document.getElementById('lobby-name').textContent);
+=======
+		const username = JSON.parse(document.getElementById('user-name').textContent);
+>>>>>>> Stashed changes
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -46,8 +50,14 @@
         );
 
         chatSocket.onmessage = function(e) {
+<<<<<<< Updated upstream
             const data = JSON.parse(e.data);
             document.querySelector('#chat-log').value += (data.message + '\n');
+=======
+    
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (JSON.parse(document.getElementById('user-name').textContent) +': ' + data.message + '\n');
+>>>>>>> Stashed changes
         };
 
         chatSocket.onclose = function(e) {
