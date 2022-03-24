@@ -35,12 +35,7 @@
 	{{ user.username|json_script:"user-name" }}
     <script>
         const lobbyName = JSON.parse(document.getElementById('lobby-name').textContent);
-<<<<<<< Updated upstream
-		const username = JSON.parse(document.getElementById('lobby-name').textContent);
-=======
 		const username = JSON.parse(document.getElementById('user-name').textContent);
->>>>>>> Stashed changes
-
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -50,27 +45,20 @@
         );
 
         chatSocket.onmessage = function(e) {
-<<<<<<< Updated upstream
-            const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
-=======
     
             const data = JSON.parse(e.data);
             document.querySelector('#chat-log').value += (JSON.parse(document.getElementById('user-name').textContent) +': ' + data.message + '\n');
->>>>>>> Stashed changes
         };
 
         chatSocket.onclose = function(e) {
             console.error('Chat socket closed unexpectedly');
         };
-
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#chat-message-submit').click();
             }
         };
-
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
