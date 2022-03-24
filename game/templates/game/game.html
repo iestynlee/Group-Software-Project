@@ -100,7 +100,8 @@ ul{
     <button id="randomSwitch1" onclick="randomswitch1(0)">Switch1</button>
     <button id="randomSwitch2" onclick="randomswitch1(1)">Switch2</button>
     <button id="randomSwitch3" onclick="randomswitch1(2)">Switch3</button>
-    <button id="randomSwitch4" onclick="randomswitch1(3)">Switch3</button>
+    <button id="randomSwitch4" onclick="randomswitch1(3)">Switch4</button>
+    <button id="randomSwitch5" onclick="randomswitch1(4)">Switch to secret location</button>
 
     <button id="showMap" onClick="showMap()">Show Large Map </button>
     <button id="hideMap" onClick="hideMap()">Hide Large Map </button>
@@ -133,6 +134,7 @@ ul{
 
     }
     var lonGlobal, latGlobal;
+    var allUserLocations;
     var map;
     var mapLarge = new ol.Map({
       target: 'map1',
@@ -217,11 +219,10 @@ ul{
          mapLarge.addLayer(layer);
        }
      }
-     var col = {{color.color}}
         var myStyle = new ol.style.Style({
           image: new ol.style.Circle({
             radius: 5,
-            fill: new ol.style.Fill({color: "black"}),
+            fill: new ol.style.Fill({color: "{{color}}"}),
             stroke: new ol.style.Stroke({
               color: [255,0,0], width: 2
             })
@@ -298,11 +299,11 @@ ul{
         popup.style.display = "block";
     }
 
-   function newPlayer(x,y){
+   function newPlayer(x,y,z){
        var newPlayerStyle = new ol.style.Style({
          image: new ol.style.Circle({
            radius: 5,
-           fill: new ol.style.Fill({color: 'blue'}),
+           fill: new ol.style.Fill({color: z}),
            stroke: new ol.style.Stroke({
              color: [255,0,0], width: 2
            })
@@ -392,7 +393,10 @@ ul{
         },
         success: function(response){
           console.log(response)
-          newPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1])
+          newPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1], response.otherPlayerData[0][2])
+          allUserLocations = [response.otherPlayerData[0][0], response.otherPlayerData[0][1]]
+          console.log("Loc" + allUserLocations);
+
         },
         error: function(error){
           console.log("error" + error)
@@ -401,6 +405,22 @@ ul{
     }
     function randomswitch1(z) {
       if (isImposter == false){
+        if(z==4){
+          var x = 50.73541427986050
+          var y = -3.5393276812220645
+          map.getLayers().forEach(layer => {
+            if(layer.get('name') == 'playerLayer'){
+              //map.removeLayer(layer)
+              layer.getSource().forEachFeature(feature => {
+                feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
+                lonGlobal = y;
+                latGlobal = x;
+              });
+            }
+          });
+          map.getView().setCenter(ol.proj.fromLonLat([y,x]));
+        }
+        else{
         var locations = {{data}}
         console.log(locations)
         var y = locations[z][1]
@@ -431,8 +451,13 @@ ul{
         var id = segments[4];
         randomswitch(y, x, id);
         }
-
+      }
       else{
+        var url =window.location.href;
+        var segments = url.split( '/' );
+        var id = segments[4];
+        randomswitch(50.735414279860606, -3.5393276812220655, id);
+
         var locationsNew = [-3.5393276812220655, 50.735414279860606]
         map.getLayers().forEach(layer => {
           if(layer.get('name') == 'playerLayer'){
@@ -445,17 +470,17 @@ ul{
           }
         });
         map.getView().setCenter(ol.proj.fromLonLat(locationsNew));
-        var url =window.location.href;
-        var segments = url.split( '/' );
-        var id = segments[4];
-        randomswitch(50.73541427986060, -3.5393276812220655, id);
-        var otherUserLocation = {{locations}}
-        for (let i=0;i<3;i++){
-          var loc = [otherUserLocation[i][1], otherUserLocation[i][0]];
-          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
-            document.getElementById("kill").disabled = false;
-            document.getElementById("kill").value = playerName;
-            break;
+        for (let i=0;i<1;i++){
+          if(allUserLocations != undefined){
+
+            var loc = [allUserLocations[0], allUserLocations[1]];
+            console.log("HEREEE" + loc)
+
+            if(((loc[0]-0.00019)<=lonGlobal && lonGlobal<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=latGlobal && latGlobal<=(loc[1]+0.00019))){
+              document.getElementById("kill").disabled = false;
+              document.getElementById("kill").value = playerName;
+              break;
+            }
           }
         }
       }

@@ -223,6 +223,7 @@ def inGame(request, lobby_name):
 			thisPlayer = Player.objects.get(user = request.user)
 			thisPlayer.gpsLongitude = location[0]
 			thisPlayer.gpsLatitude = location[1]
+			thisPlayer.save()
 			otherPlayers = Player.objects.all().filter(lobby = thisLobby).exclude(user = request.user)
 			otherPlayerData = []
 			for i in range(len(otherPlayers)):
@@ -236,10 +237,10 @@ def inGame(request, lobby_name):
 			tasksAllFinished = True
 			crewmatesAllDead = True
 			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
-			for i in range(len(crewmates)):
+			for i in crewmates:
 				tasks = Task.objects.all().filter(player = i)
-				for i in range(len(tasks)):
-					if i.isDone == False:
+				for j in tasks:
+					if j.isDone == False:
 						tasksAllFinished = False
 				if i.isAlive == True:
 					crewmatesAllDead = False
@@ -255,7 +256,7 @@ def inGame(request, lobby_name):
 			deadPlayer.save()
 			crewmatesAllDead = True
 			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
-			for i in range(len(crewmates)):
+			for i in crewmates:
 				if i.isAlive == True:
 					crewmatesAllDead = False
 			#winconditioncheck end
@@ -268,10 +269,10 @@ def inGame(request, lobby_name):
 			thisTask.save()
 			tasksAllFinished = True
 			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
-			for i in range(len(crewmates)):
+			for i in crewmates:
 				tasks = Task.objects.all().filter(player = i)
-				for i in range(len(tasks)):
-					if i.isDone == False:
+				for j in tasks:
+					if j.isDone == False:
 						tasksAllFinished = False
 			return JsonResponse({'tasksAllFinished':tasksAllFinished})
 
@@ -293,6 +294,6 @@ def inGame(request, lobby_name):
 	else:
 		isImposter = 'false'
 
-	color = player.color
+	color = str(player.color)
 
 	return render(request, 'game/game.html',{'data':taskLocation, 'names':names, 'isImposter': isImposter, 'locations': locations, 'username':request.user, 'color': color})
