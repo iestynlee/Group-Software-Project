@@ -114,7 +114,7 @@ def lobbies(request):
 @login_required(login_url='game:login')
 def inLobby(request, lobby_name):
 	lobby = get_object_or_404(Lobby, pk=lobby_name)
-	return render(request, 'game/lobby.html', {'lobby': lobby})
+	return render(request, 'game/lobby.html', { 'lobby_name': lobby_name})
 
 @login_required(login_url='game:login')
 def addUser(request, lobby_name):
