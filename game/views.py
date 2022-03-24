@@ -146,7 +146,7 @@ def inLobby(request, lobby_name):
 				player.isImposter = True
 				player.save()
 			else:
-				player.isAlive
+				player.isAlive = True
 				player.save()
 				crewmates.append(player)
 
@@ -168,6 +168,7 @@ def inLobby(request, lobby_name):
 				task.player = i
 				task.save()
 				gameTasks.remove(task)
+				noOfTasks = noOfTasks -1
 
 		url = '/game/' + lobby_name
 		return redirect(url)
@@ -241,30 +242,31 @@ def inGame(request, lobby_name):
 				tasks = Task.objects.all().filter(player = i)
 				for j in tasks:
 					if j.isDone == False:
-						tasksAllFinished = False
+						tasksAllFinished = 'false'
 				if i.isAlive == True:
-					crewmatesAllDead = False
+					crewmatesAllDead = 'false'
 			#winconditioncheck end
 
 			return JsonResponse({'otherPlayerData': otherPlayerData, 'tasksAllFinished':tasksAllFinished, 'crewmatesAllDead': crewmatesAllDead})
-		elif request.GET.get('color'):
+		elif request.GET.get('color') != None:
 			#wincondition check
-			player = Player.objects.all().filter(lobby = thisLobby).filter(color=request.Get.get('color'))
-			deadPlayer = player[0]
-			deadPlayer.isAlive = False
-			deadPlayer.color = 'white'
-			deadPlayer.save()
-			crewmatesAllDead = True
+			#colorP = request.GET.get('color')
+			print("lobby: "+ str(lobby_name) + "color "+str(request.GET.get('color')) )
+			player = Player.objects.get(lobby = lobby_name, color=request.GET.get('color'))
+			player.isAlive = False
+			player.color = 'white'
+			player.save()
+			crewmatesAllDead = 'true'
 			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
 			for i in crewmates:
 				if i.isAlive == True:
-					crewmatesAllDead = False
+					crewmatesAllDead = 'false'
 			#winconditioncheck end
 			return JsonResponse({'crewmatesAllDead':crewmatesAllDead})
 		else:
 			taskNum = request.GET.get('taskNumber')
 			thisPlayer = Player.objects.get(user = request.user)
-			thisTask = Task.objects.all().filter(player = thisPlayer).filter(taskNumber=taskNum)
+			thisTask = Task.objects.get(player = thisPlayer, taskNumber=taskNum)
 			thisTask.isDone =True
 			thisTask.save()
 			tasksAllFinished = True

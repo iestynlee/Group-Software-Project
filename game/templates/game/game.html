@@ -108,11 +108,11 @@ ul{
 
 
     <button id="task" onclick="doTask(this.value)" >Do Task</button>
-    <button id="kill" onclick="kill()" >Kill</button>
+    <button id="kill" onclick="kill(this.value)" >Kill</button>
 
     <ul id="list">
     </ul>
-    <div id="end" style= "display: none">
+    <div id="end" style= "display: none" >
       <h2>Winner</h2>
     <p>GOOD JOB! YOU COMPLETE ALL THE TASKS!!!</p>
     </div>
@@ -120,6 +120,9 @@ ul{
     <h2> </h2>
 	  </center>
     <script type="text/javascript">
+    var url =window.location.href;
+    var segments = url.split( '/' );
+    var id = segments[4];
     var isImposter ={{isImposter}};
     if( isImposter== true){
       document.getElementById("kill").style.display = 'visible'
@@ -313,7 +316,7 @@ ul{
        source: new ol.source.Vector({
            features: [
                new ol.Feature({
-                   geometry: new ol.geom.Point(ol.proj.fromLonLat([y,x]))
+                   geometry: new ol.geom.Point(ol.proj.fromLonLat([x,y]))
                })
            ]
         }),
@@ -322,6 +325,17 @@ ul{
       });
       console.log("It happened " + x + y)
       map.addLayer(newPlayer);
+    }
+    function adjustPlayer(x,y){
+      map.getLayers().forEach(layer => {
+        if(layer.get('name') == 'newPlayer'){
+          layer.getSource().forEachFeature(feature => {
+            feature.getGeometry().setCoordinates(ol.proj.fromLonLat([x,y]));
+            lonGlobal = y;
+            latGlobal = x;
+          });
+        }
+      });
     }
    /* once we actually try to move
    if (navigator.geolocation) {
@@ -351,9 +365,9 @@ ul{
      }
 
     }
-    function passTaskNum(x,z){
+    function passTaskNum(x){
       $.ajax({
-        url: '/game/'+z,
+        url: '/game/'+id,
         type: 'get',
         data:{
           taskNumber: x
@@ -367,25 +381,28 @@ ul{
       }
       })
     }
-    function passColor(x,z){
+    function passColor(x){
       $.ajax({
-        url: '/game/'+z,
+        url: '/game/'+id,
         type: 'get',
         data:{
           color: x
         },
       success: function(response){
         console.log(response)
-        newPlayer(response.otherPlayerData[0,1])
+        if(response.crewmatesAllDead = true){
+          document.getElementById("end").innerHTML = "The Imposters won by killing the entire crew";
+          document.getElementById("end").style.display = "block";
+        }
       },
       error: function(error){
         console.log(error)
       }
      })
     }
-    function randomswitch(x,y,z){
+    function randomswitch(x,y){
       $.ajax({
-        url: '/game/'+z,
+        url: '/game/'+id,
         type: 'get',
         data:{
           longitude: x,
@@ -393,9 +410,15 @@ ul{
         },
         success: function(response){
           console.log(response)
-          newPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1], response.otherPlayerData[0][2])
-          allUserLocations = [response.otherPlayerData[0][0], response.otherPlayerData[0][1]]
-          console.log("Loc" + allUserLocations);
+          if(allUserLocations == undefined){
+            newPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1], response.otherPlayerData[0][2])
+            allUserLocations = [response.otherPlayerData[0][0], response.otherPlayerData[0][1], response.otherPlayerData[0][2]]
+            console.log("Loc" + allUserLocations);
+          }else{
+            adjustPlayer(response.otherPlayerData[0][0],response.otherPlayerData[0][1])
+            allUserLocations = [response.otherPlayerData[0][0], response.otherPlayerData[0][1]]
+
+          }
 
         },
         error: function(error){
@@ -419,44 +442,41 @@ ul{
             }
           });
           map.getView().setCenter(ol.proj.fromLonLat([y,x]));
+          randomswitch(y, x);
         }
         else{
-        var locations = {{data}}
-        console.log(locations)
-        var y = locations[z][1]
-        var x = locations[z][2]
-        map.getLayers().forEach(layer => {
-          if(layer.get('name') == 'playerLayer'){
-            //map.removeLayer(layer)
-            layer.getSource().forEachFeature(feature => {
-              feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
-              lonGlobal = y;
-              latGlobal = x;
-            });
+          var locations = {{data}}
+          console.log(locations)
+          var y = locations[z][1]
+          var x = locations[z][2]
+          map.getLayers().forEach(layer => {
+            if(layer.get('name') == 'playerLayer'){
+              //map.removeLayer(layer)
+              layer.getSource().forEachFeature(feature => {
+                feature.getGeometry().setCoordinates(ol.proj.fromLonLat([y,x]));
+                lonGlobal = y;
+                latGlobal = x;
+              });
+            }
+          });
+          map.getView().setCenter(ol.proj.fromLonLat([y,x]));
+          console.log("here" + map.getView().getCenter());
+          var jsonData = {{data}};
+          for (let i=0;i<4;i++){
+            var loc = [jsonData[i][1], jsonData[i][2]];
+            if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
+              document.getElementById("task").disabled = false;
+              document.getElementById("task").value = i+1;
+              break;
+            }
           }
-        });
-        map.getView().setCenter(ol.proj.fromLonLat([y,x]));
-        console.log("here" + map.getView().getCenter());
-        var jsonData = {{data}};
-        for (let i=0;i<4;i++){
-          var loc = [jsonData[i][1], jsonData[i][2]];
-          if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
-            document.getElementById("task").disabled = false;
-            document.getElementById("task").value = i+1;
-            break;
-          }
-        }
-        var url =window.location.href;
-        var segments = url.split( '/' );
-        var id = segments[4];
-        randomswitch(y, x, id);
+
+          randomswitch(y, x);
         }
       }
       else{
-        var url =window.location.href;
-        var segments = url.split( '/' );
-        var id = segments[4];
-        randomswitch(50.735414279860606, -3.5393276812220655, id);
+
+        randomswitch(50.735414279860606, -3.5393276812220655);
 
         var locationsNew = [-3.5393276812220655, 50.735414279860606]
         map.getLayers().forEach(layer => {
@@ -478,7 +498,8 @@ ul{
 
             if(((loc[0]-0.00019)<=lonGlobal && lonGlobal<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=latGlobal && latGlobal<=(loc[1]+0.00019))){
               document.getElementById("kill").disabled = false;
-              document.getElementById("kill").value = playerName;
+              document.getElementById("kill").value = allUserLocations[2];
+              console.log("color " + allUserLocations[2])
               break;
             }
           }
@@ -486,8 +507,9 @@ ul{
       }
     }
 
-    function kill(){
-
+    function kill(x){
+        console.log("color " + x)
+        passColor(x);
     }
 
     </script>
