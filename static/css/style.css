@@ -2,7 +2,7 @@
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 body {
-    background-image: url('/static/images/exeter.jpg');
+    background-image: url('/static/images/Space.jpg');
     height: 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -19,7 +19,18 @@ body {
     background-color: white;
     padding: 80px;
     border-radius: 30px;
-    outline: 3px solid aqua;
+    outline: 3px solid #CAEBF2;
+}
+
+.container2 {
+    position: center;
+    top: 250px;
+    margin: 100px auto;
+    width: 40%;
+    background-color: #404040;
+    padding: 80px;
+    border-radius: 30px;
+    outline: 3px solid #B3B3B3;
 }
 
 .title, .subtitle {
@@ -27,9 +38,21 @@ body {
     font-weight: bolder;
     color: black;
 }
+
 .title {
     font-size: 35px;
 }
+
+.title2, .subtitle2 {
+    text-align: center;
+    font-weight: bolder;
+    color: white;
+}
+
+.title2 {
+    font-size: 35px;
+}
+
 .form {
     width: 100%;
     
@@ -41,7 +64,7 @@ body {
     outline: none;
     background: none;
 }
-.username, .password, .email {
+.username, .password, .email, .lobby {
     display: block;
     border-radius: 30px;
     border: 1px solid;
@@ -67,17 +90,30 @@ body {
     color: white;
     margin-bottom: 5px;
 }
+
+.lobby-btn {
+    width: 100%;
+    padding: 12px 10px;
+    border: none;
+    font-size: 18px;
+    border-radius: 30px;
+    background-color: #282828;
+    color: white;
+    margin-bottom: 5px;
+}
+
 .game {
-    background-color: gainsboro;
+    background-color: #121212;
     background-image: none;
+    overflow: scroll;
 }
 .menu-header {
     text-align: center;
-    color: white;
+    color: #181818;
 }
 .navbar ul {
     list-style: none;
-    background: aqua;
+    background: #181818;
     padding: 0;
     margin: 0;
     text-align: center;
@@ -85,10 +121,11 @@ body {
 }
 .navbar li {
     display: inline-block;
+    color: black;
 }
 .navbar a {
     text-decoration: none;
-    color: white;
+    color: #FFFFFF;
     width: 100px;
     display: block;
     padding: 25px 20px;
@@ -99,4 +136,13 @@ body {
 }
 .navbar a:hover {
     background-color: gainsboro;
+}
+
+.navbar-custom{
+    background-color: #181818;
+    color: #A9A9A9;
+}
+
+.nav-item{
+    color: #FFFFFF;
 }
