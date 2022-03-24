@@ -67,9 +67,11 @@
     <h2>My Map</h2>
     <div id="map" class="map" display="block"></div>
     <div id="map1" class="map" display="none"></div>
-    <button id="randomSwitch" onclick="randomswitch1(50.73763133962232, -3.536951676811666)">Switch1</button>
-    <button id="randomSwitch1" onclick="randomswitch1(50.73942183830498, -3.5336562834726597)">Switch2</button>
-    <button id="randomSwitch2" onclick="randomswitch1(50.73641559265679, -3.5316147469911217)">Switch3</button>
+    <button id="randomSwitch1" onclick="randomswitch1(0)">Switch1</button>
+    <button id="randomSwitch2" onclick="randomswitch1(1)">Switch2</button>
+    <button id="randomSwitch3" onclick="randomswitch1(2)">Switch3</button>
+    <button id="randomSwitch4" onclick="randomswitch1(3)">Switch3</button>
+
     <button id="showMap" onClick="showMap()">Show Large Map </button>
     <button id="hideMap" onClick="hideMap()">Hide Large Map </button>
 
@@ -83,15 +85,12 @@
       <h2>Winner</h2>
     <p>GOOD JOB! YOU COMPLETE ALL THE TASKS!!!</p>
     </div>
-    <h2 id="username">Start</h2>
-    <h2>{{game.player}} </h2>
-    {% for player in game.players %}
-      <h2>HERE {{player.user}} </h2>
-    {% endfor %}
+    <h2 id="username">{{username}}</h2>
+    <h2> </h2>
 
     <script type="text/javascript">
     var isImposter ={{isImposter}};
-    if( isImposter== true){
+    if( isImposter== false){
       document.getElementById("kill").style.display = 'visible'
       document.getElementById("task").style.display = 'none'
 
@@ -160,26 +159,29 @@
       var jsonData = {{data|safe}};
       var names = {{names|safe}};
       var ul = document.getElementById("list");
-      for (let i=0;i<3;i++){
-        var temp = taskStyle.clone();
-        temp.getText().setText((i+1).toString());
-        var li = document.createElement("li");
-        li.id=i+1;
-        li.appendChild(document.createTextNode(names[i]));
-        ul.appendChild(li);
-        var layer = new ol.layer.Vector({
-        source: new ol.source.Vector({
-            features: [
-                new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][0]]))
-                })
-            ]
-         }),
-         style: temp,
-         name: jsonData[i][2]
-       });
-       map.addLayer(layer);
-       mapLarge.addLayer(layer);
+      if(isImposter == false){
+        for (let i=0;i<4;i++){
+          var temp = taskStyle.clone();
+          temp.getText().setText((i+1).toString());
+          var li = document.createElement("li");
+          li.id=i+1;
+          li.appendChild(document.createTextNode(names[i]));
+          ul.appendChild(li);
+          console.log("coordinates" +jsonData[i][1]+ jsonData[i][2] )
+          var layer = new ol.layer.Vector({
+          source: new ol.source.Vector({
+              features: [
+                  new ol.Feature({
+                      geometry: new ol.geom.Point(ol.proj.fromLonLat([jsonData[i][1], jsonData[i][2]]))
+                  })
+              ]
+           }),
+           style: temp,
+           name: jsonData[i][0]
+         });
+         map.addLayer(layer);
+         mapLarge.addLayer(layer);
+       }
      }
         var myStyle = new ol.style.Style({
           image: new ol.style.Circle({
@@ -313,9 +315,16 @@
      }
 
     }
-    function randomswitch(x,y){
+    function passTaskNum(y){
       $.ajax({
-        url: '/game/',
+        url: '/game/'+z,
+        type: 'get',
+
+      })
+    }
+    function randomswitch(x,y,z){
+      $.ajax({
+        url: '/game/'+z,
         type: 'get',
         data:{
           longitude: x,
@@ -323,14 +332,18 @@
         },
         success: function(response){
           console.log(response)
-          newPlayer(response.lon, response.lat)
+          newPlayer(response.otherPlayerData[0,1])
         },
         error: function(error){
           console.log(error)
         }
       })
     }
-    function randomswitch1(x,y) {
+    function randomswitch1(z) {
+      var locations = {{data}}
+      console.log(locations)
+      var y = locations[z][1]
+      var x = locations[z][2]
       map.getLayers().forEach(layer => {
         if(layer.get('name') == 'playerLayer'){
           //map.removeLayer(layer)
@@ -343,7 +356,7 @@
       });
       map.getView().setCenter(ol.proj.fromLonLat([y,x]));
       console.log("here" + map.getView().getCenter());
-      if(isImposter == true){
+      if(isImposter == false){
         var otherUserLocation = {{locations}}
         for (let i=0;i<3;i++){
           var loc = [otherUserLocation[i][1], otherUserLocation[i][0]];
@@ -356,15 +369,18 @@
       }
       else{
         var jsonData = {{data}};
-        for (let i=0;i<3;i++){
-          var loc = [jsonData[i][1], jsonData[i][0]];
+        for (let i=0;i<4;i++){
+          var loc = [jsonData[i][1], jsonData[i][2]];
           if(((loc[0]-0.00019)<=y && y<=(loc[0]+0.00019)) && ((loc[1]-0.00019)<=x && x<=(loc[1]+0.00019))){
             document.getElementById("task").disabled = false;
             document.getElementById("task").value = i+1;
             break;
           }
         }
-        randomswitch(50.73540659686997, -3.5359459229200176)
+        var url =window.location.href;
+        var segments = url.split( '/' );
+        var id = segments[4];
+        randomswitch(50.73540659686997, -3.5359459229200176, id);
         }
       }
     </script>
