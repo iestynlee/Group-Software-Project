@@ -14,6 +14,31 @@
     margin: 0;
     box-sizing: border-box;
 }
+	   
+body{
+  background-color: #222222;
+}
+
+h1{
+  color: white;
+  text-align: center;
+}
+
+h2{
+  color: #B3B3B3;
+  text-align: center;
+}
+
+ul{
+  color: white;
+}
+
+.header{
+      background-color: #4e4e4e;
+      padding-top: 2%;
+      padding-bottom: 0.5%;
+    }
+	    
 .popup{
     background-color: #ffffff;
     width: 420px;
@@ -21,7 +46,7 @@
     position: absolute;
     transform: translate(-50%,-50%);
     left: 50%;
-    top: 50%;
+    top: 25%;
     border-radius: 8px;
     display: none;
     font-family: "Poppins",sans-serif;
@@ -55,18 +80,23 @@
         width: 50%;
       }
     </style>
-    <title>OpenLayers example</title>
+    <title>Imposter</title>
   </head>
   <body>
-    <h1>Game</h1>
+    <div class="header">
+    <h1>Imposter</h1>
+  </div>
+<hr style="color: #404040">
     <div class="popup">
       <button id="close">&times;</button>
       <h2>Your Role</h2>
     <p>The Rules: Killers are suppose to kill the Innocents while the Innocents try to do all the tasks. If Killers kill everyone, then they win. However, if the Innocents finish the tasks first, they will win. Tasks can be done even if you are dead. Good luck</p>
     </div>
-    <h2>My Map</h2>
+    <h2>Your Map</h2>
+	<center>
     <div id="map" class="map" display="block"></div>
     <div id="map1" class="map" display="none"></div>
+<br><hr style="color: #404040">
     <button id="randomSwitch1" onclick="randomswitch1(0)">Switch1</button>
     <button id="randomSwitch2" onclick="randomswitch1(1)">Switch2</button>
     <button id="randomSwitch3" onclick="randomswitch1(2)">Switch3</button>
@@ -87,7 +117,7 @@
     </div>
     <h2 id="username">{{username}}</h2>
     <h2> </h2>
-
+	  </center>
     <script type="text/javascript">
     var isImposter ={{isImposter}};
     if( isImposter== false){
