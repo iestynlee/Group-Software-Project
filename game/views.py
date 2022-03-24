@@ -123,8 +123,9 @@ def inLobby(request, lobby_name):
 		#players created
 		print("The length of users " + str(len(users)))
 		for i in range(len(users)):
-			player = Player(user = users[i], lobby = thislobby, color = colors[i])
-			player.save()
+			if is_gamemaster(i)==False:
+				player = Player(user = users[i], lobby = thislobby, color = colors[i])
+				player.save()
 		#decide imposters
 		players = Player.objects.all().filter(lobby = thislobby)
 		print("THe players" + str(players))
@@ -134,7 +135,6 @@ def inLobby(request, lobby_name):
 			numberOfImposters = 2
 			ran1 = random.randint(0,len(players))
 			ran2 = random.randint(0,len(players))
-
 		else:
 			numberOfImposters = 1
 			ran1 = random.randint(0,len(players))
@@ -164,6 +164,8 @@ def inLobby(request, lobby_name):
 				task.player = i
 				task.save()
 				gameTasks.remove(task)
+		return render(request, 'game/lobby.html', {'lobby': thislobby})
+	elif thislobby.gameState==1:
 		return render(request, 'game/lobby.html', {'lobby': thislobby})
 	else:
 		username = request.user
@@ -211,10 +213,11 @@ def inGame(request, lobby_name):
 	thisLobby = Lobby.objects.get(pk=lobby_name)
 	is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 	if is_ajax == True:
-			location = [request.GET.get('longitude'), request.GET.get('latitude')]
-			thisPlayer = Player.objects.get(user = request.user)
-			thisPlayer.gpsLongitude = location[0]
-			thisPlayer.gpsLatitude = location[1]
+			if is_gamemaster(request.user)==False:
+				location = [request.GET.get('longitude'), request.GET.get('latitude')]
+				thisPlayer = Player.objects.get(user = request.user)
+				thisPlayer.gpsLongitude = location[0]
+				thisPlayer.gpsLatitude = location[1]
 			otherPlayers = Player.objects.all().filter(lobby = thisLobby).exclude(user = request.user)
 			otherPlayerData = []
 			for i in range(len(otherPlayers)):
@@ -224,10 +227,24 @@ def inGame(request, lobby_name):
 				playerData.append(anotherPlayer.gpsLatitude)
 				playerData.append(anotherPlayer.color)
 				otherPlayerData.append(playerData)
+			#wincondition check
+			tasksAllFinished = True
+			crewmatesAllDead = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				tasks = Task.objects.all().filter(player = i)
+				for i in range(len(tasks)):
+					if i.isDone == False:
+						tasksAllFinished = False
+				if i.isAlive == True:
+					crewmatesAllDead = False
+			#winconditioncheck end
+			
 			return JsonResponse({'otherPlayerData': otherPlayerData})
 
-	thislobby = get_object_or_404(Lobby, pk=lobby_name)
-	taskLocation = []
+	
+
+
 	names = []
 	locations=[]
 	player = Player.objects.all().filter(user = request.user)
