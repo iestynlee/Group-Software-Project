@@ -107,7 +107,8 @@ def home(request):
 #Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	listlobbies = Lobby.objects.all()
+	Player.objects.filter(user = request.user).delete
+	listlobbies = Lobby.objects.all().filter(gameState = 0)
 	context = {'listlobbies': listlobbies}
 	return render(request, "game/lobbies.html", context)
 
@@ -167,7 +168,7 @@ def inLobby(request, lobby_name):
 		return render(request, 'game/game.html', {'lobby': thislobby})
 	else:
 		username = request.user
-		if thislobby._is_occupied():
+		if thislobby._is_occupied() and thislobby.gameState==0:
 			thislobby.users.add(username)
 			thislobby.save()
 			print(str(thislobby.users))
@@ -208,13 +209,23 @@ def lobbyForm(request):
 #The Game
 @login_required(login_url='game:login')
 def inGame(request, lobby_name):
+	thisLobby = Lobby.objects.get(pk=lobby_name)
 	is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 	if is_ajax == True:
 			location = [request.GET.get('longitude'), request.GET.get('latitude')]
-
-			lon = location[0]
-			lat = location[1]
-			return JsonResponse({'lon': lon, 'lat':lat})
+			thisPlayer = Player.objects.get(user = request.user)
+			thisPlayer.gpsLongitude = location[0]
+			thisPlayer.gpsLatitude = location[1]
+			otherPlayers = Player.objects.all().filter(lobby = thisLobby).exclude(user = request.user)
+			otherPlayerData = []
+			for i in range(len(otherPlayers)):
+				playerData = []
+				anotherPlayer = otherPlayers[i]
+				playerData.append(anotherPlayer.gpsLongitude)
+				playerData.append(anotherPlayer.gpsLatitude)
+				playerData.append(anotherPlayer.color)
+				otherPlayerData.append(playerData)
+			return JsonResponse({'otherPlayerData': otherPlayerData})
 
 	jsonFile = open("game/taskList.txt")
 	tasksList = json.load(jsonFile)
@@ -228,4 +239,5 @@ def inGame(request, lobby_name):
 	#Example of game
 	isImposter = 'false'
 	locations = [[50.73773205777886, -3.5273476951213922], [50.737420204728565, -3.5390163992138413]]
+
 	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'isImposter': isImposter, 'locations': locations})
