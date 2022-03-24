@@ -17,7 +17,7 @@
 <hr style="color: #404040">
 <h3 style="color: #B3B3B3">Currently Logged in as: {{user.username|default:'Guest'}}</h3>
 {% if request.user|has_group:"Gamemaster" %}
-<p>You are the role of Gamemaster, you can create lobbies, delete, and start games</p>
+<p style="color: #B3B3B3">You are the role of Gamemaster, you can create lobbies, delete, and start games</p>
 {% endif %}
 <hr style="color: #404040">
 <br>
@@ -30,7 +30,6 @@
 <div class="card" style="width: 18rem; background-color: #404040;">
 	<div class="card-body">
 		<h5 class="card-title" style="color: #FFFFFF">{{ lobby.lobby_name }}</h5>
-		
     <a href="{% url 'game:lobby' lobby.id %}" class="btn btn-primary">Go To Lobby</a>
 
 	</div>
@@ -47,8 +46,6 @@
 
 {% endif %}
 {% endblock %}
-
-
 
 </body>
 </html>

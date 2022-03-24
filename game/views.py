@@ -1,4 +1,5 @@
 #What you need to render the html and files
+from turtle import color
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.forms import inlineformset_factory
@@ -16,9 +17,8 @@ from django.http import JsonResponse
 
 import json
 import sys
-#Need this here to set up path
-sys.path.insert(0, '/Group-Software-Project')
-from Player import *
+import random
+
 
 
 #GeoDjango
@@ -107,66 +107,192 @@ def home(request):
 #Lobby
 @login_required(login_url='game:login')
 def lobbies(request):
-	listlobbies = Lobby.objects.all()
+	Player.objects.filter(user = request.user).delete
+	listlobbies = Lobby.objects.all().filter(gameState = 0)
 	context = {'listlobbies': listlobbies}
 	return render(request, "game/lobbies.html", context)
 
 @login_required(login_url='game:login')
 def inLobby(request, lobby_name):
-	lobby = get_object_or_404(Lobby, pk=lobby_name)
-	return render(request, 'game/lobby.html', { 'lobby_name': lobby_name})
+	thislobby = get_object_or_404(Lobby, pk=lobby_name)
+	if request.method=='POST':
+		thislobby.gameState=1
+		thislobby.save()
+		users = thislobby._users()
+		colors = ['black', 'blue', 'red', 'orange', 'light_green', 'yellow', 'pink', 'purple', 'light_blue', 'dark_green']
+		#players created
+		print("The length of users " + str(len(users)))
+		for i in range(len(users)):
+			if is_gamemaster(i)==False:
+				player = Player(user = users[i], lobby = thislobby, color = colors[i])
+				player.save()
+		#decide imposters
+		players = Player.objects.all().filter(lobby = thislobby)
+		print("THe players" + str(players))
+		ran1 = -1
+		ran2 = -1
+		if len(players) >=7:
+			numberOfImposters = 2
+			ran1 = random.randint(0,len(players)-1)
+			ran2 = random.randint(0,len(players)-1)
+
+		else:
+			numberOfImposters = 1
+			ran1 = random.randint(0,len(players)-1)
+
+		for i in range(0, len(players)):
+			if i == ran1:
+				player = players[i]
+				player.isImposter = True
+				player.save()
+		jsonFile = open("game/taskList.txt")
+		tasksList = json.load(jsonFile)
+		gameTasks = []
+		crewmates = []
+		for x in players:
+			if x._isImposter() == False:
+				crewmates.append(player)
+		#distribute tasks
+		for x in tasksList["tasks"]:
+			task = Task(taskName = x["name"], gpsLongitude = x["longitude"], gpsLatitude = x["latitude"], taskNumber =x["number"])
+			task.save()
+			gameTasks.append(task)
+		jsonFile.close()
+		noOfTasks = len(gameTasks)-1
+		for i in crewmates:
+			for j in range(4):
+				num = random.randint(0,noOfTasks)
+				print(num)
+				task = gameTasks[num]
+				task.player = i
+				task.save()
+				gameTasks.remove(task)
+
+		url = '/game/' + lobby_name
+		return redirect(url)
+	else:
+		username = request.user
+		if thislobby._is_occupied() and thislobby.gameState==0:
+			thislobby.users.add(username)
+			thislobby.save()
+			print(str(thislobby.users))
+			return render(request, 'game/lobby.html', {'lobby': thislobby, 'users':thislobby._users})
+		else:
+			return redirect('game:lobbies')
 
 @login_required(login_url='game:login')
 def addUser(request, lobby_name):
 	lobby = Lobby.objects.get(pk=lobby_name)
-	user = None
-	if request.user.is_authenticated():
-		username = request.user
-		if lobby.is_occupied(username):
-			lobby.users.add(username)
-			return redirect('game:lobby')
-		else: 
-			return redirect('game:lobbies')
+	username = request.user
+	print("username" + username)
+	if lobby.is_occupied():
+		lobby.users.add(username)
+		lobby.save()
+		return redirect('game:lobby')
 	else:
-		return render(request, "users/error_page.html")
-	
+		return redirect('game:lobbies')
+
+
 @login_required(login_url='game:login')
 def cancelLobby(request, lobby_name):
 	lobby = Lobby.objects.get(pk=lobby_name)
 	lobby.delete()
 	return redirect('game:lobbies')
 
-@login_required(login_url='game:login')
+@login_required (login_url='game:login')
 def lobbyForm(request):
-    form = LobbyForm()
-    if request.method == 'POST':
-    	form = LobbyForm(request.POST)
-    	if form.is_valid():
-    		form.save()
-    		redirect('game:lobbies')
-    return render(request,"game/createLobby.html",{'form':form})
+	form = LobbyForm()
+	if request.method == 'POST':
+		form = LobbyForm(request.POST)
+		if form.is_valid():
+			form.save()
+			redirect('game:lobbies')
+	return render(request,"game/createLobby.html",{'form':form})
+
 
 #The Game
 @login_required(login_url='game:login')
-def inGame(request):
+def inGame(request, lobby_name):
+	thisLobby = Lobby.objects.get(pk=lobby_name)
 	is_ajax = request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 	if is_ajax == True:
+		if request.GET.get('longitude') != None:
+			
 			location = [request.GET.get('longitude'), request.GET.get('latitude')]
+			if is_gamemaster(i)==False:
+				thisPlayer = Player.objects.get(user = request.user)
+				thisPlayer.gpsLongitude = location[0]
+				thisPlayer.gpsLatitude = location[1]
+			otherPlayers = Player.objects.all().filter(lobby = thisLobby).exclude(user = request.user)
+			otherPlayerData = []
+			for i in range(len(otherPlayers)):
+				playerData = []
+				anotherPlayer = otherPlayers[i]
+				playerData.append(anotherPlayer.gpsLongitude)
+				playerData.append(anotherPlayer.gpsLatitude)
+				playerData.append(anotherPlayer.color)
+				otherPlayerData.append(playerData)
+			#wincondition check
+			tasksAllFinished = True
+			crewmatesAllDead = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				tasks = Task.objects.all().filter(player = i)
+				for i in range(len(tasks)):
+					if i.isDone == False:
+						tasksAllFinished = False
+				if i.isAlive == True:
+					crewmatesAllDead = False
+			#winconditioncheck end
+			
+			return JsonResponse({'otherPlayerData': otherPlayerData, 'tasksAllFinished':tasksAllFinished, 'crewmatesAllDead': crewmatesAllDead})
+		elif request.GET.get('color'):
+			#wincondition check
+			player = Player.objects.all().filter(lobby = thisLobby).filter(color=request.Get.get('color'))
+			deadPlayer = player[0]
+			deadPlayer.isAlive = False
+			deadPlayer.color = 'white'
+			deadPlayer.save()
+			crewmatesAllDead = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				if i.isAlive == True:
+					crewmatesAllDead = False
+			#winconditioncheck end
+			return JsonResponse({'crewmatesAllDead':crewmatesAllDead})
+		else:
+			taskNum = request.GET.get('taskNumber')
+			thisPlayer = Player.objects.get(user = request.user)
+			thisTask = Task.objects.all().filter(player = thisPlayer).filter(taskNumber=taskNum)
+			thisTask.isDone =True
+			thisTask.save()
+			tasksAllFinished = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				tasks = Task.objects.all().filter(player = i)
+				for i in range(len(tasks)):
+					if i.isDone == False:
+						tasksAllFinished = False
+			return JsonResponse({'tasksAllFinished':tasksAllFinished})
 
-			lon = location[0]
-			lat = location[1]
-			return JsonResponse({'lon': lon, 'lat':lat})
+	taskLocation = []
+	names = []
+	locations=[]
+	player = Player.objects.get(user = request.user)
+	tasks = Task.objects.all().filter(player = player)
+	#print("tasks " + str(tasks))
+	for i in tasks:
+		taskNum = i.taskNumber
+		taskLon = i.gpsLongitude
+		taskLat =i.gpsLatitude
+		taskName = i.taskName
+		names.append(taskName)
+		taskLocation.append([taskNum, taskLon, taskLat])
+	if player.isImposter == True:
+		isImposter = 'true'
+	else:
+		isImposter = 'false'
 
-	jsonFile = open("game/taskList.txt")
-	tasksList = json.load(jsonFile)
-	tasksLocation=[]
-	names=[]
-	for x in tasksList["tasks"]:
-		anInstance = [x["latitude"], x["longitude"], x["number"]]
-		tasksLocation.append(anInstance)
-		names.append(x["name"])
-	jsonFile.close()
-	#Example of game
-	isImposter = 'false';
-	locations = [[50.73773205777886, -3.5273476951213922], [50.737420204728565, -3.5390163992138413]]
-	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'isImposter': isImposter, 'locations': locations})
+
+
+	return render(request, 'game/game.html',{'data':taskLocation, 'names':names, 'isImposter': isImposter, 'locations': locations, 'username':request.user})
