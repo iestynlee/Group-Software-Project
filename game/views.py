@@ -159,9 +159,8 @@ def inLobby(request, lobby_name):
 		jsonFile.close()
 		noOfTasks = len(gameTasks)
 		for i in crewmates:
-			nums = random.sample(range(noOfTasks-1), 4)
 			for j in range(4):
-				task = gameTasks[nums[j]]
+				task = gameTasks[random.randint(0,noOfTasks)]
 				task.player = i
 				task.save()
 				gameTasks.remove(task)
@@ -227,17 +226,21 @@ def inGame(request, lobby_name):
 				otherPlayerData.append(playerData)
 			return JsonResponse({'otherPlayerData': otherPlayerData})
 
-	jsonFile = open("game/taskList.txt")
-	tasksList = json.load(jsonFile)
-	tasksLocation=[]
-	names=[]
-	for x in tasksList["tasks"]:
-		anInstance = [x["latitude"], x["longitude"], x["number"]]
-		tasksLocation.append(anInstance)
-		names.append(x["name"])
-	jsonFile.close()
-	#Example of game
-	isImposter = 'false'
-	locations = [[50.73773205777886, -3.5273476951213922], [50.737420204728565, -3.5390163992138413]]
+	thislobby = get_object_or_404(Lobby, pk=lobby_name)
+	taskLocation = []
+	names = []
+	locations=[]
+	player = Player.objects.all().filter(user = request.user)
+	tasks = Task.objects.all().filter(player = request.user.username)
+	for i in tasks:
+		taskNum = i._taskNumber
+		taskLong = i._gpsLongitude
+		taskLat =i._gpsLatitude
+		taskName = i.__str__
+		names.add(taskName)
+		locations.add([taskNum, taskLong, taskLat])
+	isImposter = player.__isImposter
+
+
 
 	return render(request, 'game/game.html',{'data':tasksLocation, 'names':names, 'isImposter': isImposter, 'locations': locations})
