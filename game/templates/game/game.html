@@ -114,7 +114,6 @@ ul{
     </ul>
     <div id="end" style= "display: none" >
       <h2>Winner</h2>
-    <p>GOOD JOB! YOU COMPLETE ALL THE TASKS!!!</p>
     </div>
     <h2 id="username">{{username}}</h2>
     <h2> </h2>
@@ -300,6 +299,7 @@ ul{
     function popItUp() {
         var popup = document.getElementById("end");
         popup.style.display = "block";
+        popup.innerHTML ="GOOD JOB! YOU COMPLETE ALL THE TASKS!!!";
     }
 
    function newPlayer(x,y,z){
