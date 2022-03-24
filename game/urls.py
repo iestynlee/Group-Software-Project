@@ -17,7 +17,7 @@ urlpatterns = [
 	path('delete_lobby/<lobby_name>/', views.cancelLobby, name='cancel-lobby'),
 
 	#Game
-	path('game/', views.inGame, name="game"),
+	path('game/<lobby_name>/', views.inGame, name="game"),
 
 	#These are the urls for the registering and logging in for normal user
 	path('register/', views.register, name="register"),
