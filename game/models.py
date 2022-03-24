@@ -29,6 +29,7 @@ class Player(models.Model):
 	lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, default=None)
 	color = models.CharField(max_length=10, default="#000000")
 
+
 	def __str__(self):
 		return self.user.username
 	def _user(self):
@@ -50,7 +51,7 @@ class Player(models.Model):
 
 class Task(models.Model):
 
-	player = models.ForeignKey(Player, on_delete=models.CASCADE, default=None)
+	player = models.ForeignKey(Player, on_delete=models.CASCADE, default=None, blank=True, null=True)
 	taskName =  models.CharField(max_length=200, default='Task')
 	gpsLongitude = models.FloatField(default=0)
 	gpsLatitude = models.FloatField(default=0)

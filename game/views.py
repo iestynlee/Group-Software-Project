@@ -125,18 +125,24 @@ def inLobby(request, lobby_name):
 			player = Player(user = users[i], lobby = thislobby, color = colors[i])
 			player.save()
 		#decide imposters
-		players = thislobby._players()
+		players = Player.objects.all().filter(lobby = thislobby)
+		print("THe players" + str(players))
+		ran1 = -1
+		ran2 = -1
 		if len(players) >=7:
 			numberOfImposters = 2
+			ran1 = random.randint(0,len(players))
+			ran2 = random.randint(0,len(players))
+
 		else:
 			numberOfImposters = 1
-		print(users)
-		listOfImposters = random.sample(players, numberOfImposters)
+			ran1 = random.randint(0,len(players))
 
-		for i in listOfImposters:
-			player = listOfImposters[i]
-			player.isImposter = True
-			player.save()
+		for i in range(0, len(players)):
+			if i == ran1:
+				player = players[i]
+				player.isImposter = True
+				player.save()
 		jsonFile = open("game/taskList.txt")
 		tasksList = json.load(jsonFile)
 		gameTasks = []
@@ -150,10 +156,11 @@ def inLobby(request, lobby_name):
 			task.save()
 			gameTasks.append(task)
 		jsonFile.close()
-		noOftasks = len(gameTasks)
+		noOfTasks = len(gameTasks)
 		for i in crewmates:
+			nums = random.sample(range(noOfTasks-1), 4)
 			for j in range(4):
-				task = gameTasks[(random.randint(0, len(gameTasks)))]
+				task = gameTasks[nums[j]]
 				task.player = i
 				task.save()
 				gameTasks.remove(task)
@@ -163,7 +170,8 @@ def inLobby(request, lobby_name):
 		if thislobby._is_occupied():
 			thislobby.users.add(username)
 			thislobby.save()
-			return render(request, 'game/lobby.html', {'lobby': thislobby})
+			print(str(thislobby.users))
+			return render(request, 'game/lobby.html', {'lobby': thislobby, 'users':thislobby._users})
 		else:
 			return redirect('game:lobbies')
 
