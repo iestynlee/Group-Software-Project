@@ -27,7 +27,7 @@ class Player(models.Model):
 	gpsLongitude = models.FloatField(default=0)
 	gpsLatitude = models.FloatField(default=0)
 	lobby = models.ForeignKey(Lobby, on_delete=models.CASCADE, default=None)
-	color = models.CharField(max_length=10, default="#000000")
+	color = models.CharField(max_length=15, default="white")
 
 
 	def __str__(self):

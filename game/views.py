@@ -119,7 +119,7 @@ def inLobby(request, lobby_name):
 		thislobby.gameState=1
 		thislobby.save()
 		users = thislobby._users()
-		colors = ['#000000', '#0000FF', '#FF0000', '#FFA500', '#90EE90', '#FFFF00', '#FFC0CB', '#6a0dad', '#ADD8E6', '#006400']
+		colors = ['black', 'blue', 'red', 'orange', 'light_green', 'yellow', 'pink', 'purple', 'light_blue', 'dark_green']
 		#players created
 		print("The length of users " + str(len(users)))
 		for i in range(len(users)):
@@ -245,11 +245,35 @@ def inGame(request, lobby_name):
 					crewmatesAllDead = False
 			#winconditioncheck end
 			
-			return JsonResponse({'otherPlayerData': otherPlayerData})
+			return JsonResponse({'otherPlayerData': otherPlayerData, 'tasksAllFinished':tasksAllFinished, 'crewmatesAllDead': crewmatesAllDead})
 		elif request.GET.get('color'):
-			return JsonResponse()
+			#wincondition check
+			player = Player.objects.all().filter(lobby = thisLobby).filter(color=request.Get.get('color'))
+			deadPlayer = player[0]
+			deadPlayer.isAlive = False
+			deadPlayer.color = 'white'
+			deadPlayer.save()
+			crewmatesAllDead = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				if i.isAlive == True:
+					crewmatesAllDead = False
+			#winconditioncheck end
+			return JsonResponse({'crewmatesAllDead':crewmatesAllDead})
 		else:
 			taskNum = request.GET.get('taskNumber')
+			thisPlayer = Player.objects.get(user = request.user)
+			thisTask = Task.objects.all().filter(player = thisPlayer).filter(taskNumber=taskNum)
+			thisTask.isDone =True
+			thisTask.save()
+			tasksAllFinished = True
+			crewmates = Player.objects.all().filter(lobby = thisLobby).filter(isImposter=False)
+			for i in range(len(crewmates)):
+				tasks = Task.objects.all().filter(player = i)
+				for i in range(len(tasks)):
+					if i.isDone == False:
+						tasksAllFinished = False
+			return JsonResponse({'tasksAllFinished':tasksAllFinished})
 
 	taskLocation = []
 	names = []
